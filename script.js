@@ -31,17 +31,14 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     showMessage('Contraseña incorrecta para este grupo', 'error');
     return;
   }
+
+  const rubricaGuardada = localStorage.getItem(`rubrica-${grupo}`);
+    
+    if (!rubricaGuardada) {
+      showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
+      return;
+    } 
   
-function cargarRubrica(grupo) {
-  const docRef = doc(db, "rubricas", grupo);
-  const docSnap = await getDoc(docRef);
-  
-  if (docSnap.exists()) {
-      mostrarRubrica(grupo, docSnap.data());
-  } else {
-    alert("¡Aún no hay calificaciones disponibles!");
-  }
-}
   
   mostrarRubrica(grupo, JSON.parse(rubricaGuardada));
 });
