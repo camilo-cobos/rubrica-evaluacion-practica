@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de Rúbricas - Lic. Matemáticas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1>Consulta tu Rúbrica de Evaluación</h1>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="grupo">Grupo:</label>
+        <select id="grupo" required>
+          <option value="">Selecciona tu grupo</option>
+          <option value="Grupo1">Grupo 1 - Paula y Julieth</option>
+          <option value="Grupo2">Grupo 2 - Estefania y Thalia</option>
+          <option value="Grupo3">Grupo 3 - María José y Santiago</option>
+          <option value="Grupo4">Grupo 4 - Jhon Jairo y William</option>
+          <option value="Grupo5">Grupo 5 - Jeidy y Stip</option>
+          <option value="Grupo6">Grupo 6 - Daniel y Nataly</option>
+          <option value="Grupo7">Grupo 7 - Laura y Iris</option>
+          <option value="Grupo8">Grupo 8 - Ana y Andrés</option>
+          <option value="Grupo9">Grupo 9 - Carlos</option>
+          <option value="Grupo10">Grupo 10 - Nicole y Jean Paul</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" required placeholder="Ingresa tu código de estudiante">
+      </div>
+      <button type="submit">Ver mi Rúbrica</button>
+    </form>
+    <div id="message" class="message"></div>
+    
+    <div class="admin-link">
+      <a href="profesor/">Acceso para profesores</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
