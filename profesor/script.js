@@ -159,10 +159,10 @@ function guardarRubrica(grupo) {
   
   let total = 0;
   const ponderaciones = { 
-    "Excelente": 0.9, 
-    "Satisfactorio": 0.7, 
-    "Insuficiente": 0.4 
-  };
+  "Excelente": 1,    // Cambiado de 0.9 a 1
+  "Satisfactorio": 0.7, 
+  "Insuficiente": 0.4 
+};
 
   // Calcular puntuación para cada criterio
   CRITERIOS.forEach((criterio, i) => {
