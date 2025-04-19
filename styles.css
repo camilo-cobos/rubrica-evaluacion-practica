@@ -180,3 +180,35 @@ tr:nth-child(even) {
     font-size: 14px;
   }
 }
+
+/* Agrega esto al final del archivo */
+
+/* Estilos para el acceso de profesor */
+.admin-link button {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-link button:hover {
+  background-color: #d35400;
+}
+
+#profesorPassword {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+  width: 200px;
+}
+
+#loginProfesor {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+}
