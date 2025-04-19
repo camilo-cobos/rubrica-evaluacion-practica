@@ -1,3 +1,7 @@
+import { db } from "../firebase-config.js";
+import { doc, setDoc } from "firebase/firestore";
+
+
 const grupos = [
   ["Grupo1", "Paula y Julieth"],
   ["Grupo2", "Estefania y Thalia"],
@@ -161,7 +165,14 @@ function guardarRubrica(grupo) {
   const ponderaciones = { 
   "Excelente": 1,    // Cambiado de 0.9 a 1
   "Satisfactorio": 0.7, 
-  "Insuficiente": 0.4 
+  "Insuficiente": 0.4
+
+  try {
+    await setDoc(doc(db, "rubricas", grupo), datos); // Usa setDoc en lugar de db.collection
+    console.log("Documento guardado con ID: ", grupo);
+  } catch (e) {
+    console.error("Error al guardar: ", e);
+  }
 };
 
   // Calcular puntuación para cada criterio
