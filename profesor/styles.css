@@ -1,0 +1,48 @@
+.profesor-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.logout a {
+  color: #e74c3c;
+  text-decoration: none;
+}
+
+.logout a:hover {
+  text-decoration: underline;
+}
+
+.edicion-rubrica {
+  margin-top: 30px;
+}
+
+.edicion-rubrica select, 
+.edicion-rubrica textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.edicion-rubrica textarea {
+  height: 80px;
+}
+
+.guardar-btn {
+  background-color: #27ae60;
+  margin-top: 20px;
+}
+
+.guardar-btn:hover {
+  background-color: #219653;
+}
