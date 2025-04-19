@@ -1,3 +1,6 @@
+import { db } from "./firebase-config.js";
+import { doc, getDoc } from "firebase/firestore";
+
 // Contraseñas por grupo (2 por grupo excepto Grupo 9)
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
@@ -29,12 +32,16 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     return;
   }
   
-  const rubricaGuardada = localStorage.getItem(`rubrica-${grupo}`);
+function cargarRubrica(grupo) {
+  const docRef = doc(db, "rubricas", grupo);
+  const docSnap = await getDoc(docRef);
   
-  if (!rubricaGuardada) {
-    showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
-    return;
+  if (docSnap.exists()) {
+      mostrarRubrica(grupo, docSnap.data());
+  } else {
+    alert("¡Aún no hay calificaciones disponibles!");
   }
+}
   
   mostrarRubrica(grupo, JSON.parse(rubricaGuardada));
 });
