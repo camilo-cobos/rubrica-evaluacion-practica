@@ -1,6 +1,3 @@
-import { db } from "./firebase-config.js";
-import { doc, getDoc } from "firebase/firestore";
-
 // Contraseñas por grupo (2 por grupo excepto Grupo 9)
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
