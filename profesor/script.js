@@ -1,4 +1,4 @@
-import { db, doc, setDoc } from "../firebase-setup.js";
+import { db, collection, addDoc, serverTimestamp } from "../firebase-setup.js";
 
 const CRITERIOS = [
   { nombre: "Objetivos", puntos: 15 },
@@ -16,39 +16,15 @@ const DESCRIPCIONES = {
     "Satisfactorio": "Parcialmente coherentes pero sin claridad.",
     "Insuficiente": "No hay correspondencia con el contenido, son vagos o irrelevantes."
   },
-  "Justificación": {
-    "Excelente": "Fundamenta con claridad la importancia y el contexto escolar.",
-    "Satisfactorio": "Argumenta sin profundidad o sin contexto.",
-    "Insuficiente": "No argumenta la pertinencia ni el propósito de la clase."
-  },
-  "Marco teórico": {
-    "Excelente": "Referentes relevantes, organizados y bien citados.",
-    "Satisfactorio": "Incluye referentes pero poco argumentados.",
-    "Insuficiente": "Sin referentes teóricos o desorganizados."
-  },
-  "Descripción y recursos": {
-    "Excelente": "Detalle claro de actividad y recursos pertinentes.",
-    "Satisfactorio": "General pero poco clara.",
-    "Insuficiente": "Descripción incompleta, sin justificar recursos."
-  },
-  "Funciones semióticas": {
-    "Excelente": "Integración adecuada de funciones semióticas.",
-    "Satisfactorio": "Descripción parcial o sin conexión.",
-    "Insuficiente": "No identifica funciones semióticas."
-  },
-  "Metodología (Resolución de Problemas)": {
-    "Excelente": "Metodología clara con resolución de problemas.",
-    "Satisfactorio": "Secuencia poco clara o incompleta.",
-    "Insuficiente": "Sin metodología o incoherente."
-  },
-  "Evaluación de la clase": {
-    "Excelente": "Criterios claros y coherentes con los objetivos.",
-    "Satisfactorio": "Criterios poco específicos.",
-    "Insuficiente": "Sin criterios claros ni niveles definidos."
-  }
+  "Justificación": { "Excelente": "Fundamenta con claridad la importancia y el contexto escolar.", "Satisfactorio": "Argumenta sin profundidad o sin contexto.", "Insuficiente": "No argumenta la pertinencia ni el propósito de la clase." },
+  "Marco teórico": { "Excelente": "Referentes relevantes, organizados y bien citados.", "Satisfactorio": "Incluye referentes pero poco argumentados.", "Insuficiente": "Sin referentes teóricos o desorganizados." },
+  "Descripción y recursos": { "Excelente": "Detalle claro de actividad y recursos pertinentes.", "Satisfactorio": "General pero poco clara.", "Insuficiente": "Descripción incompleta, sin justificar recursos." },
+  "Funciones semióticas": { "Excelente": "Integración adecuada de funciones semióticas.", "Satisfactorio": "Descripción parcial o sin conexión.", "Insuficiente": "No identifica funciones semióticas." },
+  "Metodología (Resolución de Problemas)": { "Excelente": "Metodología clara con resolución de problemas.", "Satisfactorio": "Secuencia poco clara o incompleta.", "Insuficiente": "Sin metodología o incoherente." },
+  "Evaluación de la clase": { "Excelente": "Criterios claros y coherentes con los objetivos.", "Satisfactorio": "Criterios poco específicos.", "Insuficiente": "Sin criterios claros ni niveles definidos." }
 };
 
-// Construir dinámicamente el formulario
+// Construcción del formulario
 const contenedor = document.getElementById("criterios-container");
 
 CRITERIOS.forEach((criterio, i) => {
@@ -76,7 +52,6 @@ CRITERIOS.forEach((criterio, i) => {
   `;
 });
 
-// Reacción al cambio de nivel para cada criterio
 document.querySelectorAll('.nivel-select').forEach(select => {
   select.addEventListener('change', (e) => {
     const nivel = e.target.value;
@@ -152,18 +127,20 @@ document.getElementById("formularioRubrica").addEventListener("submit", async (e
   else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
 
   const datos = {
+    grupo,
     fechaEvaluacion: fecha,
     puntuacionTotal,
     concepto,
-    criterios
+    criterios,
+    timestamp: serverTimestamp()
   };
 
   try {
-    await setDoc(doc(db, "rubricas", grupo), datos);
-    mostrarMensaje("Rúbrica guardada exitosamente", "success");
+    await addDoc(collection(db, "rubricas", grupo, "planeaciones"), datos);
+    mostrarMensaje("✅ Rúbrica guardada exitosamente (como nueva planeación)", "success");
   } catch (error) {
     console.error("Error al guardar la rúbrica:", error);
-    mostrarMensaje("Error al guardar la rúbrica", "error");
+    mostrarMensaje("❌ Error al guardar la rúbrica", "error");
   }
 });
 
