@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="login-container" id="contenido">
+  <div class="login-container">
     <h1>Consulta tu Rúbrica de Evaluación</h1>
     <form id="loginForm">
       <div class="form-group">
@@ -32,10 +32,8 @@
       </div>
       <button type="submit">Ver mi Rúbrica</button>
     </form>
-
     <div id="message" class="message"></div>
-
-    <!-- Acceso para profesores -->
+    
     <div class="admin-link">
       <button onclick="mostrarLoginProfesor()">Acceso para profesores</button>
       <div id="loginProfesor" style="display:none; margin-top:15px;">
@@ -46,6 +44,7 @@
     </div>
   </div>
 
+  <!-- IMPORTANTE: usa módulo para poder importar Firebase -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
