@@ -1,4 +1,3 @@
-// Contraseñas por grupo (2 por grupo excepto Grupo 9)
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
   "Grupo2": ["20231245022", "20231245013"],
@@ -17,7 +16,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
   
   const grupo = document.getElementById('grupo').value;
   const password = document.getElementById('password').value;
-  const messageDiv = document.getElementById('message');
   
   if (!grupo || !password) {
     showMessage('Por favor completa todos los campos', 'error');
@@ -28,15 +26,22 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     showMessage('Contraseña incorrecta para este grupo', 'error');
     return;
   }
-  
-  const rubricaGuardada = localStorage.getItem(`rubrica-${grupo}`);
-  
-  if (!rubricaGuardada) {
-    showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
-    return;
-  }
-  
-  mostrarRubrica(grupo, JSON.parse(rubricaGuardada));
+
+  // Cargar rúbricas desde el archivo JSON
+  fetch('rubricas.json')
+    .then(response => response.json())
+    .then(data => {
+      const rubricaGrupo = data[grupo];
+      if (!rubricaGrupo) {
+        showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
+        return;
+      }
+      mostrarRubrica(grupo, rubricaGrupo);
+    })
+    .catch(error => {
+      console.error('Error al cargar las rúbricas:', error);
+      showMessage('No se pudo cargar la rúbrica', 'error');
+    });
 });
 
 function showMessage(text, type) {
@@ -105,14 +110,13 @@ function mostrarRubrica(grupo, datos) {
   document.body.innerHTML = rubricaHTML;
 }
 
-// Agrega estas funciones al final del archivo:
-
+// Acceso profesor
 function mostrarLoginProfesor() {
   document.getElementById('loginProfesor').style.display = 'block';
 }
 
 function verificarAccesoProfesor() {
-  const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0"; // Tu contraseña segura
+  const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
   const inputPassword = document.getElementById('profesorPassword').value;
   const mensaje = document.getElementById('mensajeProfesor');
   
