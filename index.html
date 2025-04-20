@@ -35,8 +35,14 @@
     <div id="message" class="message"></div>
     
     <div class="admin-link">
-      <a href="profesor/">Acceso para profesores</a>
+      <button onclick="mostrarLoginProfesor()">Acceso para profesores</button>
+      <div id="loginProfesor" style="display:none; margin-top:15px;">
+        <input type="password" id="profesorPassword" placeholder="Ingrese la contraseña de profesor">
+        <button onclick="verificarAccesoProfesor()">Acceder</button>
+        <p id="mensajeProfesor" style="color:red;"></p>
+      </div>
     </div>
+    
   </div>
 
   <script src="script.js"></script>
