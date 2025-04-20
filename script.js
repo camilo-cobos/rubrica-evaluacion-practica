@@ -119,3 +119,21 @@ function mostrarHistorial(grupo, planeaciones) {
     </div>
   `;
 }
+
+// Acceso profesor
+window.mostrarLoginProfesor = function() {
+  document.getElementById('loginProfesor').style.display = 'block';
+};
+
+window.verificarAccesoProfesor = function() {
+  const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
+  const inputPassword = document.getElementById('profesorPassword').value;
+  const mensaje = document.getElementById('mensajeProfesor');
+  
+  if (inputPassword === CONTRASEÑA_PROFESOR) {
+    window.location.href = "profesor/index.html";
+  } else {
+    mensaje.textContent = "Contraseña incorrecta. Intente nuevamente.";
+    setTimeout(() => mensaje.textContent = "", 3000);
+  }
+};
