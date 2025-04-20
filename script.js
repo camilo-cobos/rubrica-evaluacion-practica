@@ -28,14 +28,13 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     showMessage('Contraseña incorrecta para este grupo', 'error');
     return;
   }
-
-  const rubricaGuardada = localStorage.getItem(`rubrica-${grupo}`);
-    
-    if (!rubricaGuardada) {
-      showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
-      return;
-    } 
   
+  const rubricaGuardada = localStorage.getItem(`rubrica-${grupo}`);
+  
+  if (!rubricaGuardada) {
+    showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
+    return;
+  }
   
   mostrarRubrica(grupo, JSON.parse(rubricaGuardada));
 });
