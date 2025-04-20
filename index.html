@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,9 +6,6 @@
   <title>Consulta de Rúbricas - Lic. Matemáticas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
 <body>
   <div class="login-container">
     <h1>Consulta tu Rúbrica de Evaluación</h1>
@@ -38,13 +35,8 @@
     <div id="message" class="message"></div>
     
     <div class="admin-link">
-  <button onclick="mostrarLoginProfesor()">Acceso para profesores</button>
-  <div id="loginProfesor" style="display:none; margin-top:15px;">
-    <input type="password" id="profesorPassword" placeholder="Ingrese la contraseña de profesor">
-    <button onclick="verificarAccesoProfesor()">Acceder</button>
-    <p id="mensajeProfesor" style="color:red;"></p>
-  </div>
-</div>
+      <a href="profesor/">Acceso para profesores</a>
+    </div>
   </div>
 
   <script src="script.js"></script>
