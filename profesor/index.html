@@ -36,19 +36,13 @@
       </div>
 
       <div class="form-group">
-        <label for="puntuacionTotal">Puntuación total (0 - 100):</label>
-        <input type="number" id="puntuacionTotal" max="100" min="0" step="0.1" required />
+        <label for="puntuacionTotal">Puntuación total (calculada automáticamente):</label>
+        <input type="number" id="puntuacionTotal" readonly />
       </div>
 
       <div class="form-group">
         <label for="concepto">Resultado:</label>
-        <select id="concepto" required>
-          <option value="">-- Selecciona --</option>
-          <option value="Sobresaliente">Sobresaliente</option>
-          <option value="Bueno">Bueno</option>
-          <option value="Satisfactorio">Satisfactorio</option>
-          <option value="Insuficiente">Insuficiente</option>
-        </select>
+        <input type="text" id="concepto" readonly />
       </div>
 
       <button type="submit">Guardar Rúbrica</button>
