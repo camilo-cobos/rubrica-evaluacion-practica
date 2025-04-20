@@ -48,7 +48,7 @@ const DESCRIPCIONES = {
   }
 };
 
-// Construcción dinámica del formulario
+// Construir dinámicamente el formulario
 const contenedor = document.getElementById("criterios-container");
 
 CRITERIOS.forEach((criterio, i) => {
@@ -76,7 +76,7 @@ CRITERIOS.forEach((criterio, i) => {
   `;
 });
 
-// Escuchar cambios en cada combo de nivel
+// Reacción al cambio de nivel para cada criterio
 document.querySelectorAll('.nivel-select').forEach(select => {
   select.addEventListener('change', (e) => {
     const nivel = e.target.value;
@@ -89,8 +89,32 @@ document.querySelectorAll('.nivel-select').forEach(select => {
     } else {
       descripcionInput.value = "";
     }
+
+    actualizarPuntuacionYConcepto();
   });
 });
+
+function actualizarPuntuacionYConcepto() {
+  let total = 0;
+  CRITERIOS.forEach((crit, i) => {
+    const nivel = document.getElementById(`nivel-${i}`).value;
+    let factor = 0;
+    if (nivel === "Excelente") factor = 1;
+    else if (nivel === "Satisfactorio") factor = 0.7;
+    else if (nivel === "Insuficiente") factor = 0.4;
+
+    total += +(crit.puntos * factor);
+  });
+
+  total = +total.toFixed(1);
+
+  let concepto = "❌ No Aprobado";
+  if (total >= 80) concepto = "✅ Aprobado";
+  else if (total >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+
+  document.getElementById("puntuacionTotal").value = total;
+  document.getElementById("concepto").value = concepto;
+}
 
 document.getElementById("formularioRubrica").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -123,10 +147,9 @@ document.getElementById("formularioRubrica").addEventListener("submit", async (e
 
   puntuacionTotal = +puntuacionTotal.toFixed(1);
 
-  let concepto = "Insuficiente";
-  if (puntuacionTotal >= 90) concepto = "Sobresaliente";
-  else if (puntuacionTotal >= 75) concepto = "Bueno";
-  else if (puntuacionTotal >= 60) concepto = "Satisfactorio";
+  let concepto = "❌ No Aprobado";
+  if (puntuacionTotal >= 80) concepto = "✅ Aprobado";
+  else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
 
   const datos = {
     fechaEvaluacion: fecha,
