@@ -109,7 +109,7 @@ function mostrarHistorial(grupo, planeaciones) {
     </div>
   `).join('<hr style="margin:40px 0;">');
 
-  document.body.innerHTML = `
+  document.getElementById("contenido").innerHTML = `
     <div class="rubrica-historial">
       <h1>Historial de Rúbricas - ${grupo}</h1>
       ${rubricasHTML}
@@ -120,7 +120,7 @@ function mostrarHistorial(grupo, planeaciones) {
   `;
 }
 
-// Acceso profesor
+// 👨‍🏫 Acceso profesor
 window.mostrarLoginProfesor = function () {
   document.getElementById("loginProfesor").style.display = "block";
 };
@@ -137,4 +137,3 @@ window.verificarAccesoProfesor = function () {
     setTimeout(() => mensaje.textContent = "", 3000);
   }
 };
-
