@@ -148,7 +148,6 @@ function actualizarDescripcion(grupo, index) {
   }
 }
 
-// Reemplaza la función guardarRubrica completa por esta versión corregida:
 function guardarRubrica(grupo) {
   const datos = {
     criterios: [],
@@ -158,21 +157,13 @@ function guardarRubrica(grupo) {
   };
   
   let total = 0;
-  const ponderaciones = { 
-  "Excelente": 1,    // Cambiado de 0.9 a 1
-  "Satisfactorio": 0.7, 
-  "Insuficiente": 0.4
-  }
-};
-
-  // Calcular puntuación para cada criterio
+  const ponderaciones = { "Excelente": 0.9, "Satisfactorio": 0.7, "Insuficiente": 0.4 };
+  
   CRITERIOS.forEach((criterio, i) => {
-    const select = document.getElementById(`${grupo}-nivel-${i}`);
-    const nivel = select ? select.value : "";
+    const nivel = document.getElementById(`${grupo}-nivel-${i}`).value;
     const observaciones = document.getElementById(`${grupo}-obs-${i}`).value;
-    const descripcion = DESCRIPCIONES[criterio.nombre]?.[nivel] || "";
-
-    // Guardar datos del criterio
+    const descripcion = document.getElementById(`${grupo}-desc-${i}`).textContent;
+    
     datos.criterios.push({
       nombre: criterio.nombre,
       puntos: criterio.puntos,
@@ -180,41 +171,21 @@ function guardarRubrica(grupo) {
       descripcion: descripcion,
       observaciones: observaciones
     });
-
-    // Calcular aporte al total
+    
     if (nivel && ponderaciones[nivel]) {
       total += ponderaciones[nivel] * criterio.puntos;
     }
   });
-
-  // Asignar resultados finales
+  
   datos.puntuacionTotal = total;
   datos.concepto = total < 60 ? "❌ No Aprobado" : 
                    total < 80 ? "⚠️ Aprobado con Recomendaciones" : 
                    "✅ Aprobado";
-
-  // Guardar en localStorage
+  
   localStorage.setItem(`rubrica-${grupo}`, JSON.stringify(datos));
-
-  // Actualizar la visualización inmediatamente
+  
+  alert(`Rúbrica para ${grupo} guardada exitosamente!`);
+  
   const integrantes = grupos.find(g => g[0] === grupo)[1];
   cargarRubrica(grupo, integrantes);
-
-  // Mostrar notificación de éxito
-  const notification = document.createElement('div');
-  notification.style.position = 'fixed';
-  notification.style.bottom = '20px';
-  notification.style.right = '20px';
-  notification.style.backgroundColor = '#27ae60';
-  notification.style.color = 'white';
-  notification.style.padding = '15px';
-  notification.style.borderRadius = '5px';
-  notification.style.zIndex = '1000';
-  notification.textContent = `✅ Rúbrica guardada para ${grupo}`;
-  document.body.appendChild(notification);
-
-  setTimeout(() => {
-    notification.style.opacity = '0';
-    setTimeout(() => notification.remove(), 500);
-  }, 3000);
 }
