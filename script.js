@@ -1,5 +1,6 @@
-import { db, collection, getDocs, query, orderBy } from "./firebase-setup.js";
+import { db, doc, getDoc } from "./firebase-setup.js";
 
+// Contraseñas por grupo
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
   "Grupo2": ["20231245022", "20231245013"],
@@ -30,21 +31,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   }
 
   try {
-    const planeacionesRef = collection(db, "rubricas", grupo, "planeaciones");
-    const q = query(planeacionesRef, orderBy("timestamp", "desc"));
-    const snapshot = await getDocs(q);
+    const docRef = doc(db, "rubricas", grupo);
+    const docSnap = await getDoc(docRef);
 
-    if (snapshot.empty) {
-      showMessage("Aún no hay rúbricas disponibles para este grupo", "error");
-      return;
+    if (docSnap.exists()) {
+      mostrarRubrica(grupo, docSnap.data());
+    } else {
+      showMessage("Aún no hay una rúbrica disponible para este grupo", "error");
     }
-
-    const planeaciones = [];
-    snapshot.forEach(doc => planeaciones.push(doc.data()));
-    mostrarHistorial(grupo, planeaciones);
   } catch (error) {
-    console.error("Error al consultar las rúbricas:", error);
-    showMessage("Error al obtener las rúbricas", "error");
+    console.error("Error al obtener la rúbrica:", error);
+    showMessage("Error al consultar la rúbrica", "error");
   }
 });
 
@@ -58,7 +55,7 @@ function showMessage(text, type) {
   }, 3000);
 }
 
-function mostrarHistorial(grupo, planeaciones) {
+function mostrarRubrica(grupo, datos) {
   const integrantes = {
     "Grupo1": "Paula y Julieth",
     "Grupo2": "Estefania y Thalia",
@@ -72,11 +69,10 @@ function mostrarHistorial(grupo, planeaciones) {
     "Grupo10": "Nicole y Jean Paul"
   };
 
-  const rubricasHTML = planeaciones.map((datos, index) => `
+  const rubricaHTML = `
     <div class="rubrica-container">
-      <h2 class="rubrica-title">Planeación ${index + 1}</h2>
+      <h2 class="rubrica-title">Rúbrica de Evaluación - ${grupo}</h2>
       <div class="rubrica-info">
-        <p><strong>Grupo:</strong> ${grupo}</p>
         <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
         <p><strong>Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
       </div>
@@ -91,9 +87,9 @@ function mostrarHistorial(grupo, planeaciones) {
           </tr>
         </thead>
         <tbody>
-          ${datos.criterios.map(criterio => `
+          ${datos.criterios.map((criterio) => `
             <tr>
-              <td>${criterio.nombre}</td>
+              <td class="criterio">${criterio.nombre}</td>
               <td>${criterio.puntos}</td>
               <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
               <td>${criterio.descripcion}</td>
@@ -106,30 +102,24 @@ function mostrarHistorial(grupo, planeaciones) {
         <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
         <p><strong>Resultado:</strong> ${datos.concepto}</p>
       </div>
-    </div>
-  `).join('<hr style="margin:40px 0;">');
-
-  document.getElementById("contenido").innerHTML = `
-    <div class="rubrica-historial">
-      <h1>Historial de Rúbricas - ${grupo}</h1>
-      ${rubricasHTML}
-      <button onclick="window.location.href='index.html'" style="margin-top: 30px;">
+      <button onclick="window.location.href='index.html'" style="margin-top: 20px;">
         Volver al inicio
       </button>
     </div>
   `;
+  document.body.innerHTML = rubricaHTML;
 }
 
-// 👨‍🏫 Acceso profesor
-window.mostrarLoginProfesor = function () {
-  document.getElementById("loginProfesor").style.display = "block";
+// Acceso profesor
+window.mostrarLoginProfesor = function() {
+  document.getElementById('loginProfesor').style.display = 'block';
 };
 
-window.verificarAccesoProfesor = function () {
+window.verificarAccesoProfesor = function() {
   const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
-  const inputPassword = document.getElementById("profesorPassword").value;
-  const mensaje = document.getElementById("mensajeProfesor");
-
+  const inputPassword = document.getElementById('profesorPassword').value;
+  const mensaje = document.getElementById('mensajeProfesor');
+  
   if (inputPassword === CONTRASEÑA_PROFESOR) {
     window.location.href = "profesor/index.html";
   } else {
