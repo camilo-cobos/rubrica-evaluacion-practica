@@ -1,5 +1,6 @@
 import { db, doc, getDoc } from "./firebase-setup.js";
 
+// Contraseñas por grupo
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
   "Grupo2": ["20231245022", "20231245013"],
@@ -110,10 +111,11 @@ function mostrarRubrica(grupo, datos) {
 }
 
 // Acceso profesor
-function mostrarLoginProfesor() {
+window.mostrarLoginProfesor = function() {
   document.getElementById('loginProfesor').style.display = 'block';
-}
-function verificarAccesoProfesor() {
+};
+
+window.verificarAccesoProfesor = function() {
   const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
   const inputPassword = document.getElementById('profesorPassword').value;
   const mensaje = document.getElementById('mensajeProfesor');
@@ -124,4 +126,4 @@ function verificarAccesoProfesor() {
     mensaje.textContent = "Contraseña incorrecta. Intente nuevamente.";
     setTimeout(() => mensaje.textContent = "", 3000);
   }
-}
+};
