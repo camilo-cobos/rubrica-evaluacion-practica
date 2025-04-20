@@ -159,7 +159,7 @@ function guardarRubrica(grupo) {
   
   let total = 0;
   const ponderaciones = { 
-    "Excelente": 0.9, 
+    "Excelente": 1,    // Cambiado de 0.9 a 1
     "Satisfactorio": 0.7, 
     "Insuficiente": 0.4 
   };
