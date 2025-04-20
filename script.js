@@ -1,3 +1,5 @@
+import { db, doc, getDoc } from "./firebase-setup.js";
+
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
   "Grupo2": ["20231245022", "20231245013"],
@@ -11,37 +13,35 @@ const CONTRASEÑAS = {
   "Grupo10": ["20222245040", "20222245010"]
 };
 
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   
   const grupo = document.getElementById('grupo').value;
   const password = document.getElementById('password').value;
-  
+
   if (!grupo || !password) {
     showMessage('Por favor completa todos los campos', 'error');
     return;
   }
-  
+
   if (!CONTRASEÑAS[grupo].includes(password)) {
     showMessage('Contraseña incorrecta para este grupo', 'error');
     return;
   }
 
-  // Cargar rúbricas desde el archivo JSON
-  fetch('rubricas.json')
-    .then(response => response.json())
-    .then(data => {
-      const rubricaGrupo = data[grupo];
-      if (!rubricaGrupo) {
-        showMessage('Aún no hay una rúbrica disponible para este grupo', 'error');
-        return;
-      }
-      mostrarRubrica(grupo, rubricaGrupo);
-    })
-    .catch(error => {
-      console.error('Error al cargar las rúbricas:', error);
-      showMessage('No se pudo cargar la rúbrica', 'error');
-    });
+  try {
+    const docRef = doc(db, "rubricas", grupo);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      mostrarRubrica(grupo, docSnap.data());
+    } else {
+      showMessage("Aún no hay una rúbrica disponible para este grupo", "error");
+    }
+  } catch (error) {
+    console.error("Error al obtener la rúbrica:", error);
+    showMessage("Error al consultar la rúbrica", "error");
+  }
 });
 
 function showMessage(text, type) {
@@ -70,10 +70,10 @@ function mostrarRubrica(grupo, datos) {
 
   const rubricaHTML = `
     <div class="rubrica-container">
-      <h2 class="rubrica-title">Rúbrica de Evaluación - ${grupo.replace("Grupo", "Grupo ")}</h2>
+      <h2 class="rubrica-title">Rúbrica de Evaluación - ${grupo}</h2>
       <div class="rubrica-info">
         <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
-        <p><strong>Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p><strong>Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
       </div>
       <table>
         <thead>
@@ -86,7 +86,7 @@ function mostrarRubrica(grupo, datos) {
           </tr>
         </thead>
         <tbody>
-          ${datos.criterios.map((criterio, i) => `
+          ${datos.criterios.map((criterio) => `
             <tr>
               <td class="criterio">${criterio.nombre}</td>
               <td>${criterio.puntos}</td>
@@ -106,7 +106,6 @@ function mostrarRubrica(grupo, datos) {
       </button>
     </div>
   `;
-  
   document.body.innerHTML = rubricaHTML;
 }
 
@@ -114,18 +113,15 @@ function mostrarRubrica(grupo, datos) {
 function mostrarLoginProfesor() {
   document.getElementById('loginProfesor').style.display = 'block';
 }
-
 function verificarAccesoProfesor() {
   const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
   const inputPassword = document.getElementById('profesorPassword').value;
   const mensaje = document.getElementById('mensajeProfesor');
   
   if (inputPassword === CONTRASEÑA_PROFESOR) {
-    window.location.href = "profesor/";
+    window.location.href = "profesor/index.html";
   } else {
     mensaje.textContent = "Contraseña incorrecta. Intente nuevamente.";
-    setTimeout(() => {
-      mensaje.textContent = "";
-    }, 3000);
+    setTimeout(() => mensaje.textContent = "", 3000);
   }
 }
