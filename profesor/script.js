@@ -1,4 +1,4 @@
-import { db, doc, setDoc } from "../firebase-setup.js";
+import { db, collection, addDoc, serverTimestamp } from "../firebase-setup.js";
 
 const CRITERIOS = [
   { nombre: "Objetivos", puntos: 15 },
@@ -48,7 +48,7 @@ const DESCRIPCIONES = {
   }
 };
 
-// Construir dinámicamente el formulario
+// Generar el formulario dinámico
 const contenedor = document.getElementById("criterios-container");
 
 CRITERIOS.forEach((criterio, i) => {
@@ -76,7 +76,7 @@ CRITERIOS.forEach((criterio, i) => {
   `;
 });
 
-// Reacción al cambio de nivel para cada criterio
+// Autocompletar descripción + recalcular puntaje
 document.querySelectorAll('.nivel-select').forEach(select => {
   select.addEventListener('change', (e) => {
     const nivel = e.target.value;
@@ -98,16 +98,11 @@ function actualizarPuntuacionYConcepto() {
   let total = 0;
   CRITERIOS.forEach((crit, i) => {
     const nivel = document.getElementById(`nivel-${i}`).value;
-    let factor = 0;
-    if (nivel === "Excelente") factor = 1;
-    else if (nivel === "Satisfactorio") factor = 0.7;
-    else if (nivel === "Insuficiente") factor = 0.4;
-
+    let factor = nivel === "Excelente" ? 1 : nivel === "Satisfactorio" ? 0.7 : nivel === "Insuficiente" ? 0.4 : 0;
     total += +(crit.puntos * factor);
   });
 
   total = +total.toFixed(1);
-
   let concepto = "❌ No Aprobado";
   if (total >= 80) concepto = "✅ Aprobado";
   else if (total >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
@@ -116,6 +111,7 @@ function actualizarPuntuacionYConcepto() {
   document.getElementById("concepto").value = concepto;
 }
 
+// Guardar la rúbrica como nueva planeación
 document.getElementById("formularioRubrica").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -127,43 +123,33 @@ document.getElementById("formularioRubrica").addEventListener("submit", async (e
     const nivel = document.getElementById(`nivel-${i}`).value;
     const descripcion = document.getElementById(`descripcion-${i}`).value;
     const observaciones = document.getElementById(`observaciones-${i}`).value || "";
-
-    let factor = 0;
-    if (nivel === "Excelente") factor = 1;
-    else if (nivel === "Satisfactorio") factor = 0.7;
-    else if (nivel === "Insuficiente") factor = 0.4;
-
+    let factor = nivel === "Excelente" ? 1 : nivel === "Satisfactorio" ? 0.7 : nivel === "Insuficiente" ? 0.4 : 0;
     const puntos = +(crit.puntos * factor).toFixed(1);
     puntuacionTotal += puntos;
 
-    return {
-      nombre: crit.nombre,
-      puntos,
-      nivel,
-      descripcion,
-      observaciones
-    };
+    return { nombre: crit.nombre, puntos, nivel, descripcion, observaciones };
   });
 
   puntuacionTotal = +puntuacionTotal.toFixed(1);
-
   let concepto = "❌ No Aprobado";
   if (puntuacionTotal >= 80) concepto = "✅ Aprobado";
   else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
 
   const datos = {
+    grupo,
     fechaEvaluacion: fecha,
     puntuacionTotal,
     concepto,
-    criterios
+    criterios,
+    timestamp: serverTimestamp()
   };
 
   try {
-    await setDoc(doc(db, "rubricas", grupo), datos);
-    mostrarMensaje("Rúbrica guardada exitosamente", "success");
+    await addDoc(collection(db, "rubricas", grupo, "planeaciones"), datos);
+    mostrarMensaje("✅ Rúbrica guardada correctamente", "success");
   } catch (error) {
-    console.error("Error al guardar la rúbrica:", error);
-    mostrarMensaje("Error al guardar la rúbrica", "error");
+    console.error("Error al guardar:", error);
+    mostrarMensaje("❌ Error al guardar la rúbrica", "error");
   }
 });
 
