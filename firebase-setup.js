@@ -5,6 +5,8 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
+  arrayUnion,
   collection,
   addDoc,
   getDocs,
@@ -33,6 +35,8 @@ export {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
+  arrayUnion,
   collection,
   addDoc,
   getDocs,
@@ -40,4 +44,5 @@ export {
   orderBy,
   serverTimestamp
 };
+
 
