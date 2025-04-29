@@ -7,51 +7,39 @@
   <link rel="stylesheet" href="../styles.css" />
 </head>
 <body>
-  <div class="login-container">
-    <h1>Calificar Rúbrica de Evaluación</h1>
-    
-    <form id="formularioRubrica">
-      <div class="form-group">
-        <label for="grupo">Selecciona el grupo:</label>
-        <select id="grupo" required>
-          <option value="">-- Selecciona --</option>
-          <option value="Grupo1">Grupo 1 - Paula y Julieth</option>
-          <option value="Grupo2">Grupo 2 - Estefania y Thalia</option>
-          <option value="Grupo3">Grupo 3 - María José y Santiago</option>
-          <option value="Grupo4">Grupo 4 - Jhon Jairo y William</option>
-          <option value="Grupo5">Grupo 5 - Jeidy y Stip</option>
-          <option value="Grupo6">Grupo 6 - Daniel y Nataly</option>
-          <option value="Grupo7">Grupo 7 - Laura y Iris</option>
-          <option value="Grupo8">Grupo 8 - Ana y Andrés</option>
-          <option value="Grupo9">Grupo 9 - Carlos</option>
-          <option value="Grupo10">Grupo 10 - Nicole y Jean Paul</option>
-        </select>
-      </div>
+  <div class="login-container" id="contenido">
+    <h1>Panel de Evaluación</h1>
 
-      <div id="criterios-container"></div>
+    <div class="form-group">
+      <label for="grupo">Selecciona el grupo:</label>
+      <select id="grupo" required>
+        <option value="">-- Selecciona --</option>
+        <option value="Grupo1">Grupo 1 - Paula y Julieth</option>
+        <option value="Grupo2">Grupo 2 - Estefania y Thalia</option>
+        <option value="Grupo3">Grupo 3 - María José y Santiago</option>
+        <option value="Grupo4">Grupo 4 - Jhon Jairo y William</option>
+        <option value="Grupo5">Grupo 5 - Jeidy y Stip</option>
+        <option value="Grupo6">Grupo 6 - Daniel y Nataly</option>
+        <option value="Grupo7">Grupo 7 - Laura y Iris</option>
+        <option value="Grupo8">Grupo 8 - Ana y Andrés</option>
+        <option value="Grupo9">Grupo 9 - Carlos</option>
+        <option value="Grupo10">Grupo 10 - Nicole y Jean Paul</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label for="fechaEvaluacion">Fecha de evaluación:</label>
-        <input type="date" id="fechaEvaluacion" required />
-      </div>
+    <div class="form-group">
+      <button onclick="mostrarFormularioPlaneacion()">🧾 Calificar Planeación</button>
+      <button onclick="mostrarFormularioProtocolo()">📄 Calificar Protocolo</button>
+    </div>
 
-      <div class="form-group">
-        <label for="puntuacionTotal">Puntuación total (automática):</label>
-        <input type="number" id="puntuacionTotal" readonly />
-      </div>
-
-      <div class="form-group">
-        <label for="concepto">Resultado:</label>
-        <input type="text" id="concepto" readonly />
-      </div>
-
-      <button type="submit">Guardar Rúbrica</button>
-    </form>
+    <div id="formulario"></div>
 
     <div id="mensaje" class="message"></div>
+
     <button onclick="window.location.href='../index.html'" style="margin-top: 20px;">Volver</button>
   </div>
 
+  <!-- 🔗 Conexión con Firebase y el script del docente -->
   <script type="module" src="../firebase-setup.js"></script>
   <script type="module" src="script.js"></script>
 </body>
