@@ -83,58 +83,58 @@ function mostrarHistorial(grupo, planeaciones) {
   };
 
   const rubricasHTML = planeaciones.map((datos, index) => {
-    const comentarios = datos.comentarios || [];
+  const comentarios = datos.comentarios || [];
 
-    const comentariosHTML = comentarios.map(c => `
-      <div class="comentario">
-        <strong>${c.autor}:</strong> ${c.mensaje}
+  const comentariosHTML = comentarios.map(c => `
+    <div class="comentario">
+      <strong>${c.autor}:</strong> ${c.mensaje}
+    </div>
+  `).join("");
+
+  return `
+    <div class="card rubrica-card">
+      <h2 class="rubrica-title">Planeación ${index + 1}</h2>
+      <div class="rubrica-info">
+        <p><strong>Grupo:</strong> ${grupo}</p>
+        <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
+        <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
       </div>
-    `).join("");
-
-    return `
-      <div class="rubrica-container">
-        <h2 class="rubrica-title">Planeación ${index + 1}</h2>
-        <div class="rubrica-info">
-          <p><strong>Grupo:</strong> ${grupo}</p>
-          <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
-          <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
-        </div>
-        <table>
-          <thead>
+      <table>
+        <thead>
+          <tr>
+            <th>Criterio</th>
+            <th>Puntos</th>
+            <th>Nivel</th>
+            <th>Descripción</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${datos.criterios.map(criterio => `
             <tr>
-              <th>Criterio</th>
-              <th>Puntos</th>
-              <th>Nivel</th>
-              <th>Descripción</th>
-              <th>Observaciones</th>
+              <td>${criterio.nombre}</td>
+              <td>${criterio.puntos}</td>
+              <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
+              <td>${criterio.descripcion || '-'}</td>
+              <td>${criterio.observaciones || '-'}</td>
             </tr>
-          </thead>
-          <tbody>
-            ${datos.criterios.map(criterio => `
-              <tr>
-                <td>${criterio.nombre}</td>
-                <td>${criterio.puntos}</td>
-                <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
-                <td>${criterio.descripcion || '-'}</td>
-                <td>${criterio.observaciones || '-'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <div class="resultado-final">
-          <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
-          <p><strong>Resultado:</strong> ${datos.concepto}</p>
-        </div>
-
-        <div class="comentarios-container">
-          <h4>💬 Comentarios</h4>
-          ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
-          <textarea placeholder="Escribe tu comentario aquí..." id="comentario-${index}" rows="2" style="width:100%; margin-top:10px;"></textarea>
-          <button onclick="guardarComentario('${grupo}', ${index})" style="margin-top:10px;">Enviar comentario</button>
-        </div>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="resultado-final">
+        <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
+        <p><strong>Resultado:</strong> ${datos.concepto}</p>
       </div>
-    `;
-  }).join('<hr style="margin:40px 0;">');
+      <div class="comentarios-container">
+        <h4>💬 Comentarios</h4>
+        ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
+        <textarea placeholder="Escribe tu comentario aquí..." id="comentario-${index}" rows="2" style="width:100%; margin-top:10px;"></textarea>
+        <button onclick="guardarComentario('${grupo}', ${index})" style="margin-top:10px;">Enviar comentario</button>
+      </div>
+    </div>
+  `;
+}).join('');
+
 
   document.getElementById("contenido").innerHTML = `
     <div class="rubrica-historial">
