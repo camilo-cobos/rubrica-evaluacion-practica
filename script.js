@@ -125,6 +125,12 @@ function mostrarHistorial(grupo, planeaciones) {
         <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
         <p><strong>Resultado:</strong> ${datos.concepto}</p>
       </div>
+      <div style="margin-top:15px;">
+        <button onclick="descargarPDF('rubrica-${grupo}-${index}')" class="pdf-button">
+          📄 Descargar PDF
+        </button>
+      </div>
+
       <div class="comentarios-container">
         <h4>💬 Comentarios</h4>
         ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
