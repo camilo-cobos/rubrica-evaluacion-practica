@@ -171,8 +171,8 @@ async function cargarProtocolos(grupo) {
     const protocolosHTML = snapshot.docs.map((doc, index) => {
       const datos = doc.data();
       return `
-        <div class="rubrica-container">
-          <h3>Protocolo ${index + 1}</h3>
+        <div class="card">
+          <h3>📄 Protocolo ${index + 1}</h3>
           <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
           <table>
             <thead>
@@ -208,6 +208,7 @@ async function cargarProtocolos(grupo) {
     container.innerHTML = "<p>Error al cargar protocolos.</p>";
   }
 }
+
 
 window.guardarComentario = async function(grupo, index) {
   const comentarioInput = document.getElementById(`comentario-${index}`);
