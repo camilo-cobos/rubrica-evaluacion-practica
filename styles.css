@@ -1,214 +1,142 @@
+/* ===== ESTILOS GENERALES ===== */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f7fa;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3f4f6;
   margin: 0;
   padding: 0;
   color: #333;
-  line-height: 1.6;
 }
 
-.login-container {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 30px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+h1, h2, h3, h4 {
+  color: #1f2937;
 }
 
-h1 {
-  color: #2c3e50;
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 24px;
+.login-container, .rubrica-historial {
+  max-width: 1200px;
+  margin: auto;
+  background-color: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  margin-top: 60px;
 }
 
-.form-group {
+form, .form-group {
   margin-bottom: 20px;
 }
 
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-select, input {
+select, input, textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  background-color: #3498db;
-  color: white;
+  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s;
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: #2563eb;
 }
 
-.message {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
+.message.success {
+  color: green;
 }
 
-.error {
-  background-color: #f8d7da;
-  color: #721c24;
+.message.error {
+  color: red;
 }
 
-.success {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.admin-link {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.admin-link a {
-  color: #3498db;
-  text-decoration: none;
-}
-
-.admin-link a:hover {
-  text-decoration: underline;
-}
-
-/* Estilos para la vista de rúbrica */
-.rubrica-container {
-  max-width: 1000px;
-  margin: 30px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.rubrica-title {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-}
-
-.rubrica-info {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  border-left: 4px solid #3498db;
-}
-
-.rubrica-info p {
-  margin: 5px 0;
-}
-
+/* ===== ESTILO PARA TABLA DE RÚBRICA ===== */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 30px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 15px;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 12px;
+thead {
+  background-color: #1d4ed8;
+  color: white;
+}
+
+td, th {
+  border: 1px solid #ccc;
+  padding: 10px;
   text-align: left;
 }
 
-th {
-  background-color: #3498db;
-  color: white;
+/* ===== TARJETAS DE RÚBRICAS ===== */
+.rubrica-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
 }
 
-tr:nth-child(even) {
-  background-color: #f8f9fa;
+.rubrica-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  padding: 20px;
+  transition: transform 0.2s ease;
 }
 
-.criterio {
-  font-weight: 500;
-  color: #2c3e50;
+.rubrica-container:hover {
+  transform: translateY(-3px);
 }
 
+.rubrica-title {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #1e40af;
+}
+
+/* ===== COLORES PARA NIVELES ===== */
 .excelente {
-  background-color: #d4edda;
-  color: #155724;
-  font-weight: 500;
+  background-color: #bbf7d0;
 }
-
 .satisfactorio {
-  background-color: #fff3cd;
-  color: #856404;
-  font-weight: 500;
+  background-color: #fef9c3;
 }
-
 .insuficiente {
-  background-color: #f8d7da;
-  color: #721c24;
-  font-weight: 500;
+  background-color: #fecaca;
 }
 
+/* ===== RESULTADO FINAL ===== */
 .resultado-final {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* ===== COMENTARIOS ===== */
+.comentarios-container {
   margin-top: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-left: 4px solid #3498db;
-  font-weight: 500;
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
 }
 
-@media (max-width: 768px) {
-  .login-container, .rubrica-container {
-    margin: 20px;
-    padding: 15px;
+.comentario {
+  background: #f1f5f9;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media screen and (max-width: 768px) {
+  .login-container {
+    padding: 20px;
   }
-  
-  th, td {
-    padding: 8px;
-    font-size: 14px;
-  }
 }
 
-/* Agrega esto al final del archivo */
-
-/* Estilos para el acceso de profesor */
-.admin-link button {
-  background-color: #e67e22;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.admin-link button:hover {
-  background-color: #d35400;
-}
-
-#profesorPassword {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-right: 10px;
-  width: 200px;
-}
-
-#loginProfesor {
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #eee;
-}
