@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../styles.css" />
   <style>
     .chart-container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 40px auto;
       background: #fff;
       padding: 30px;
@@ -21,7 +21,7 @@
     }
 
     .analysis {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 20px auto;
       background: #f9fafb;
       padding: 25px;
@@ -34,9 +34,20 @@
       text-align: center;
     }
 
+    .group-selector {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
     button {
       display: block;
-      margin: 20px auto;
+      margin: 30px auto 10px auto;
       padding: 10px 20px;
       background-color: #3b82f6;
       color: white;
@@ -50,24 +61,39 @@
 <body>
   <div class="chart-container">
     <h1>📊 Estadísticas de Evaluación</h1>
+    <div class="group-selector">
+      <label for="grupoSelect"><strong>Selecciona un grupo:</strong></label>
+      <select id="grupoSelect">
+        <option value="Todos">🔍 Ver todos</option>
+        <option value="Grupo1">Grupo 1</option>
+        <option value="Grupo2">Grupo 2</option>
+        <option value="Grupo3">Grupo 3</option>
+        <option value="Grupo4">Grupo 4</option>
+        <option value="Grupo5">Grupo 5</option>
+        <option value="Grupo6">Grupo 6</option>
+        <option value="Grupo7">Grupo 7</option>
+        <option value="Grupo8">Grupo 8</option>
+        <option value="Grupo9">Grupo 9</option>
+        <option value="Grupo10">Grupo 10</option>
+      </select>
+    </div>
     <canvas id="promediosCriterios"></canvas>
   </div>
 
   <div class="chart-container">
-    <h2>Distribución de Niveles (Global)</h2>
+    <h2>Distribución de Niveles</h2>
     <canvas id="nivelesDistribucion"></canvas>
   </div>
 
   <div class="analysis" id="analisis">
     <h3>Análisis fundamentado:</h3>
-    <p id="resumenAnalisis">Procesando datos...</p>
+    <p id="resumenAnalisis">Selecciona un grupo para visualizar el análisis.</p>
   </div>
 
   <button onclick="window.location.href='index.html'">⬅️ Volver al panel</button>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <!-- Firebase -->
   <script type="module" src="../firebase-setup.js"></script>
 
@@ -80,11 +106,21 @@
       db
     } from "../firebase-setup.js";
 
-    const criteriosGlobal = {};
-    const niveles = { "Excelente": 0, "Satisfactorio": 0, "Insuficiente": 0, "Sobresaliente": 0, "Notable": 0, "Aprobado": 0 };
+    let chartCriterios, chartNiveles;
 
-    async function cargarDatos() {
-      const grupos = ["Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5", "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"];
+    document.getElementById("grupoSelect").addEventListener("change", (e) => {
+      const grupo = e.target.value;
+      cargarDatos(grupo);
+    });
+
+    async function cargarDatos(grupoSeleccionado) {
+      const criteriosGlobal = {};
+      const niveles = { "Excelente": 0, "Satisfactorio": 0, "Insuficiente": 0, "Sobresaliente": 0, "Notable": 0, "Aprobado": 0 };
+
+      const grupos = grupoSeleccionado === "Todos"
+        ? ["Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5", "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"]
+        : [grupoSeleccionado];
+
       for (const grupo of grupos) {
         for (const tipo of ["planeaciones", "protocolos"]) {
           const ref = collection(db, "rubricas", grupo, tipo);
@@ -104,15 +140,20 @@
           });
         }
       }
-      mostrarGraficas();
-    }
 
-    function mostrarGraficas() {
       const nombres = Object.keys(criteriosGlobal);
       const promedios = nombres.map(n => (criteriosGlobal[n].suma / criteriosGlobal[n].count).toFixed(1));
 
-      // Gráfico de promedios por criterio
-      new Chart(document.getElementById("promediosCriterios"), {
+      actualizarGraficas(nombres, promedios, niveles);
+      generarAnalisis(nombres, promedios, grupoSeleccionado);
+    }
+
+    function actualizarGraficas(nombres, promedios, niveles) {
+      // Eliminar gráficas anteriores si existen
+      if (chartCriterios) chartCriterios.destroy();
+      if (chartNiveles) chartNiveles.destroy();
+
+      chartCriterios = new Chart(document.getElementById("promediosCriterios"), {
         type: "bar",
         data: {
           labels: nombres,
@@ -130,17 +171,16 @@
         }
       });
 
-      // Gráfico de niveles
-      const labelsNiveles = Object.keys(niveles);
-      const valoresNiveles = labelsNiveles.map(n => niveles[n]);
+      const nivelesLabels = Object.keys(niveles);
+      const nivelesData = nivelesLabels.map(n => niveles[n]);
 
-      new Chart(document.getElementById("nivelesDistribucion"), {
+      chartNiveles = new Chart(document.getElementById("nivelesDistribucion"), {
         type: "doughnut",
         data: {
-          labels: labelsNiveles,
+          labels: nivelesLabels,
           datasets: [{
             label: "Distribución de Niveles",
-            data: valoresNiveles,
+            data: nivelesData,
             backgroundColor: [
               "#22c55e", "#facc15", "#ef4444", "#6366f1", "#0ea5e9", "#f97316"
             ]
@@ -150,23 +190,27 @@
           responsive: true
         }
       });
-
-      generarAnalisis(promedios, nombres);
     }
 
-    function generarAnalisis(promedios, nombres) {
+    function generarAnalisis(nombres, promedios, grupo) {
+      if (nombres.length === 0) {
+        document.getElementById("resumenAnalisis").textContent = "No hay datos disponibles para este grupo.";
+        return;
+      }
+
       const peor = nombres.reduce((a, b, i) => (promedios[i] < promedios[nombres.indexOf(a)] ? b : a));
       const mejor = nombres.reduce((a, b, i) => (promedios[i] > promedios[nombres.indexOf(a)] ? b : a));
 
       const texto = `
-        El criterio con mejor desempeño general es <strong>${mejor}</strong>, con un promedio de <strong>${promedios[nombres.indexOf(mejor)]}</strong> puntos. 
-        Por otro lado, se identificó un bajo rendimiento en el criterio <strong>${peor}</strong>, con un promedio de <strong>${promedios[nombres.indexOf(peor)]}</strong>. 
-        Se recomienda enfocar estrategias de mejora en este aspecto, mediante retroalimentaciones, ajustes metodológicos o actividades específicas de refuerzo.`;
+        En <strong>${grupo}</strong>, el criterio con mejor desempeño fue <strong>${mejor}</strong> con un promedio de <strong>${promedios[nombres.indexOf(mejor)]}</strong> puntos.
+        El criterio más débil fue <strong>${peor}</strong>, con un promedio de <strong>${promedios[nombres.indexOf(peor)]}</strong>.
+        Se sugiere prestar mayor atención a este aspecto mediante actividades específicas o retroalimentaciones detalladas.`;
 
       document.getElementById("resumenAnalisis").innerHTML = texto;
     }
 
-    cargarDatos();
+    // Cargar por defecto todos los grupos
+    cargarDatos("Todos");
   </script>
 </body>
 </html>
