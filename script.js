@@ -264,22 +264,31 @@ window.verificarAccesoProfesor = function () {
 
 window.descargarPDF = function(idElemento) {
   const element = document.getElementById(idElemento);
-  
-  // Scroll hacia la rúbrica antes de capturar
-  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Esperar un pequeño tiempo para asegurar render completo
-  setTimeout(() => {
-    const opt = {
-      margin:       0.3,
-      filename:     `${idElemento}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
-    html2pdf().set(opt).from(element).save();
-  }, 800); // Espera de 800 milisegundos
+  // Crear una copia del contenido
+  const clone = element.cloneNode(true);
+  clone.style.width = "1000px";
+  clone.style.padding = "20px";
+  clone.style.backgroundColor = "#fff";
+  clone.style.position = "absolute";
+  clone.style.left = "-9999px"; // fuera de pantalla
+  document.body.appendChild(clone);
+
+  // Opciones de exportación
+  const opt = {
+    margin:       0.3,
+    filename:     `${idElemento}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  // Exportar desde el clon oculto
+  html2pdf().set(opt).from(clone).save().then(() => {
+    document.body.removeChild(clone); // Limpiar después
+  });
 };
+
 
 
 
