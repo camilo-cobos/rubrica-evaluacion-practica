@@ -82,69 +82,111 @@ function mostrarHistorial(grupo, planeaciones) {
     "Grupo10": "Nicole y Jean Paul"
   };
 
-  const rubricasHTML = planeaciones.map((datos, index) => {
-    const comentarios = datos.comentarios || [];
-
-    const comentariosHTML = comentarios.map(c => `
-      <div class="comentario">
-        <strong>${c.autor}:</strong> ${c.mensaje}
+  const rubricasHTML = planeaciones.map((datos, index) => `
+    <div class="rubrica-container">
+      <h2 class="rubrica-title">Planeación ${index + 1}</h2>
+      <div class="rubrica-info">
+        <p><strong>Grupo:</strong> ${grupo}</p>
+        <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
+        <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
       </div>
-    `).join("");
-
-    return `
-      <div class="rubrica-container">
-        <h2 class="rubrica-title">Planeación ${index + 1}</h2>
-        <div class="rubrica-info">
-          <p><strong>Grupo:</strong> ${grupo}</p>
-          <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
-          <p><strong>Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
-        </div>
-        <table>
-          <thead>
+      <table>
+        <thead>
+          <tr>
+            <th>Criterio</th>
+            <th>Puntos</th>
+            <th>Nivel</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${datos.criterios.map(criterio => `
             <tr>
-              <th>Criterio</th>
-              <th>Puntos</th>
-              <th>Nivel</th>
-              <th>Descripción</th>
-              <th>Observaciones</th>
+              <td>${criterio.nombre}</td>
+              <td>${criterio.puntos}</td>
+              <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
+              <td>${criterio.observaciones || '-'}</td>
             </tr>
-          </thead>
-          <tbody>
-            ${datos.criterios.map(criterio => `
-              <tr>
-                <td>${criterio.nombre}</td>
-                <td>${criterio.puntos}</td>
-                <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
-                <td>${criterio.descripcion}</td>
-                <td>${criterio.observaciones || '-'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <div class="resultado-final">
-          <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
-          <p><strong>Resultado:</strong> ${datos.concepto}</p>
-        </div>
-
-        <div class="comentarios-container">
-          <h4>💬 Comentarios</h4>
-          ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
-          <textarea placeholder="Escribe tu comentario aquí..." id="comentario-${index}" rows="2" style="width:100%; margin-top:10px;"></textarea>
-          <button onclick="guardarComentario('${grupo}', ${index})" style="margin-top:10px;">Enviar comentario</button>
-        </div>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="resultado-final">
+        <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
+        <p><strong>Resultado:</strong> ${datos.concepto}</p>
       </div>
-    `;
-  }).join('<hr style="margin:40px 0;">');
+    </div>
+  `).join('<hr style="margin:40px 0;">');
 
   document.getElementById("contenido").innerHTML = `
     <div class="rubrica-historial">
       <h1>Historial de Rúbricas - ${grupo}</h1>
       ${rubricasHTML}
+      <h2 style="margin-top:40px;">📄 Protocolos Calificados</h2>
+      <div id="protocolosContainer"><p>Cargando protocolos...</p></div>
       <button onclick="window.location.href='index.html'" style="margin-top: 30px;">
         Volver al inicio
       </button>
     </div>
   `;
+
+  // Cargar protocolos
+  cargarProtocolos(grupo);
+}
+
+// calificar protocolos
+
+async function cargarProtocolos(grupo) {
+  const container = document.getElementById("protocolosContainer");
+
+  try {
+    const protocolosRef = collection(db, "rubricas", grupo, "protocolos");
+    const q = query(protocolosRef, orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      container.innerHTML = "<p>No hay protocolos calificados aún.</p>";
+      return;
+    }
+
+    const protocolosHTML = snapshot.docs.map((doc, index) => {
+      const datos = doc.data();
+      return `
+        <div class="rubrica-container">
+          <h3>Protocolo ${index + 1}</h3>
+          <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Criterio</th>
+                <th>Puntos</th>
+                <th>Nivel</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${datos.criterios.map(c => `
+                <tr>
+                  <td>${c.nombre}</td>
+                  <td>${c.puntos}</td>
+                  <td>${c.nivel}</td>
+                  <td>${c.observaciones || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="resultado-final">
+            <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
+            <p><strong>Resultado:</strong> ${datos.concepto}</p>
+          </div>
+        </div>
+      `;
+    }).join("<hr style='margin:40px 0;'>");
+
+    container.innerHTML = protocolosHTML;
+  } catch (error) {
+    console.error("Error al cargar protocolos:", error);
+    container.innerHTML = "<p>Error al cargar protocolos.</p>";
+  }
 }
 
 window.guardarComentario = async function(grupo, index) {
