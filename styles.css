@@ -141,22 +141,39 @@ td, th {
 }
 
 .card {
-  background-color: #fff;
+  background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: 24px;
-  margin: 20px;
-  transition: transform 0.3s;
+  padding: 30px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1000px;
 }
 
-.card:hover {
-  transform: scale(1.01);
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.card th, .card td {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.card th {
+  background-color: #2563eb;
+  color: white;
 }
 
 .rubrica-historial {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-bottom: 40px;
 }
+
 
 
