@@ -82,40 +82,59 @@ function mostrarHistorial(grupo, planeaciones) {
     "Grupo10": "Nicole y Jean Paul"
   };
 
-  const rubricasHTML = planeaciones.map((datos, index) => `
-    <div class="rubrica-container">
-      <h2 class="rubrica-title">Planeación ${index + 1}</h2>
-      <div class="rubrica-info">
-        <p><strong>Grupo:</strong> ${grupo}</p>
-        <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
-        <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
+  const rubricasHTML = planeaciones.map((datos, index) => {
+    const comentarios = datos.comentarios || [];
+
+    const comentariosHTML = comentarios.map(c => `
+      <div class="comentario">
+        <strong>${c.autor}:</strong> ${c.mensaje}
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Criterio</th>
-            <th>Puntos</th>
-            <th>Nivel</th>
-            <th>Observaciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${datos.criterios.map(criterio => `
+    `).join("");
+
+    return `
+      <div class="rubrica-container">
+        <h2 class="rubrica-title">Planeación ${index + 1}</h2>
+        <div class="rubrica-info">
+          <p><strong>Grupo:</strong> ${grupo}</p>
+          <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
+          <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
+        </div>
+        <table>
+          <thead>
             <tr>
-              <td>${criterio.nombre}</td>
-              <td>${criterio.puntos}</td>
-              <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
-              <td>${criterio.observaciones || '-'}</td>
+              <th>Criterio</th>
+              <th>Puntos</th>
+              <th>Nivel</th>
+              <th>Descripción</th>
+              <th>Observaciones</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
-      <div class="resultado-final">
-        <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
-        <p><strong>Resultado:</strong> ${datos.concepto}</p>
+          </thead>
+          <tbody>
+            ${datos.criterios.map(criterio => `
+              <tr>
+                <td>${criterio.nombre}</td>
+                <td>${criterio.puntos}</td>
+                <td class="${criterio.nivel.toLowerCase()}">${criterio.nivel}</td>
+                <td>${criterio.descripcion || '-'}</td>
+                <td>${criterio.observaciones || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="resultado-final">
+          <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
+          <p><strong>Resultado:</strong> ${datos.concepto}</p>
+        </div>
+
+        <div class="comentarios-container">
+          <h4>💬 Comentarios</h4>
+          ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
+          <textarea placeholder="Escribe tu comentario aquí..." id="comentario-${index}" rows="2" style="width:100%; margin-top:10px;"></textarea>
+          <button onclick="guardarComentario('${grupo}', ${index})" style="margin-top:10px;">Enviar comentario</button>
+        </div>
       </div>
-    </div>
-  `).join('<hr style="margin:40px 0;">');
+    `;
+  }).join('<hr style="margin:40px 0;">');
 
   document.getElementById("contenido").innerHTML = `
     <div class="rubrica-historial">
@@ -129,9 +148,10 @@ function mostrarHistorial(grupo, planeaciones) {
     </div>
   `;
 
-  // Cargar protocolos
+  // Cargar protocolos al final
   cargarProtocolos(grupo);
 }
+
 
 // calificar protocolos
 
