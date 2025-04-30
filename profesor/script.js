@@ -317,8 +317,19 @@ window.editarRubrica = async function (grupo, rubricaId) {
   renderizarCriterios("planeacion", datos.criterios);
 };
 
-async function guardarEdicionRúbrica(grupo, datos) {
-  const ref = doc(db, "rubricas", grupo, "planeaciones", idRúbricaAEditar);
-  await updateDoc(ref, datos);
+async function guardarRubricaPlaneacion(grupo, datos) {
+  if (idRúbricaAEditar) {
+    // 🟢 Modo edición: actualiza rúbrica existente
+    const ref = doc(db, "rubricas", grupo, "planeaciones", idRúbricaAEditar);
+    await updateDoc(ref, datos);
+    alert("✅ Rúbrica editada correctamente.");
+    idRúbricaAEditar = null;
+  } else {
+    // 🆕 Modo normal: guarda una nueva rúbrica
+    const ref = collection(db, "rubricas", grupo, "planeaciones");
+    await addDoc(ref, datos);
+    alert("✅ Nueva rúbrica guardada.");
+  }
 }
+
 
