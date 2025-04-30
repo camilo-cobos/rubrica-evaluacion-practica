@@ -264,14 +264,22 @@ window.verificarAccesoProfesor = function () {
 
 window.descargarPDF = function(idElemento) {
   const element = document.getElementById(idElemento);
-  const opt = {
-    margin:       0.5,
-    filename:     `${idElemento}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-}
+  
+  // Scroll hacia la rúbrica antes de capturar
+  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Esperar un pequeño tiempo para asegurar render completo
+  setTimeout(() => {
+    const opt = {
+      margin:       0.3,
+      filename:     `${idElemento}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    html2pdf().set(opt).from(element).save();
+  }, 800); // Espera de 800 milisegundos
+};
+
 
 
