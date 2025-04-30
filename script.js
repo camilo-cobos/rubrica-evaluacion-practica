@@ -92,7 +92,7 @@ function mostrarHistorial(grupo, planeaciones) {
   `).join("");
 
   return `
-    <div class="card rubrica-card">
+    <div class="card rubrica-card" id="rubrica-${grupo}-${index}">
       <h2 class="rubrica-title">Planeación ${index + 1}</h2>
       <div class="rubrica-info">
         <p><strong>Grupo:</strong> ${grupo}</p>
