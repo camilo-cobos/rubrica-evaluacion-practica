@@ -265,12 +265,13 @@ window.verificarAccesoProfesor = function () {
 window.descargarPDF = function(idElemento) {
   const element = document.getElementById(idElemento);
   const opt = {
-    margin:       0.3,
+    margin:       0.5,
     filename:     `${idElemento}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
   html2pdf().set(opt).from(element).save();
-};
+}
+
 
