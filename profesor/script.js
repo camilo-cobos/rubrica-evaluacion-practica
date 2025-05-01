@@ -260,3 +260,37 @@ function mostrarMensaje(texto, tipo) {
   }, 3000);
 }
 
+// ---------------------------
+// Calcular puntaje para planeaciones automáticamente
+// ---------------------------
+document.addEventListener("change", function (e) {
+  if (!e.target.classList.contains("nivel-select")) return;
+
+  let total = 0;
+
+  CRITERIOS_PLANEACION.forEach((criterio, i) => {
+    const select = document.getElementById(`nivel-${i}`);
+    if (!select) return;
+
+    const nivel = select.value;
+    const max = parseFloat(select.dataset.puntos);
+
+    let puntos = 0;
+    if (nivel === "Excelente") puntos = max;
+    else if (nivel === "Satisfactorio") puntos = max * 0.7;
+    else if (nivel === "Insuficiente") puntos = max * 0.4;
+
+    total += puntos;
+  });
+
+  const totalRedondeado = +total.toFixed(1);
+  document.getElementById("puntuacionTotal").value = totalRedondeado;
+
+  let concepto = "❌ No Aprobado";
+  if (totalRedondeado >= 90) concepto = "✅ Sobresaliente";
+  else if (totalRedondeado >= 75) concepto = "✅ Notable";
+  else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+
+  document.getElementById("concepto").value = concepto;
+});
+
