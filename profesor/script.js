@@ -19,6 +19,47 @@ const CRITERIOS_PLANEACION = [
 ];
 
 // ---------------------------
+// Descripciones automáticas para Planeaciones
+// ---------------------------
+const DESCRIPCIONES = {
+  "Objetivos": {
+    "Excelente": "Claros, medibles y alineados con resolución de problemas.",
+    "Satisfactorio": "Parcialmente coherentes pero sin claridad.",
+    "Insuficiente": "No hay correspondencia con el contenido, son vagos o irrelevantes."
+  },
+  "Justificación": {
+    "Excelente": "Fundamenta con claridad la importancia y el contexto escolar.",
+    "Satisfactorio": "Argumenta sin profundidad o sin contexto.",
+    "Insuficiente": "No argumenta la pertinencia ni el propósito de la clase."
+  },
+  "Marco teórico": {
+    "Excelente": "Referentes relevantes, organizados y bien citados.",
+    "Satisfactorio": "Incluye referentes pero poco argumentados.",
+    "Insuficiente": "Sin referentes teóricos o desorganizados."
+  },
+  "Descripción y recursos": {
+    "Excelente": "Detalle claro de actividad y recursos pertinentes.",
+    "Satisfactorio": "General pero poco clara.",
+    "Insuficiente": "Descripción incompleta, sin justificar recursos."
+  },
+  "Funciones semióticas": {
+    "Excelente": "Integración adecuada de funciones semióticas.",
+    "Satisfactorio": "Descripción parcial o sin conexión.",
+    "Insuficiente": "No identifica funciones semióticas."
+  },
+  "Metodología (Resolución de Problemas)": {
+    "Excelente": "Metodología clara con resolución de problemas.",
+    "Satisfactorio": "Secuencia poco clara o incompleta.",
+    "Insuficiente": "Sin metodología o incoherente."
+  },
+  "Evaluación de la clase": {
+    "Excelente": "Criterios claros y coherentes con los objetivos.",
+    "Satisfactorio": "Criterios poco específicos.",
+    "Insuficiente": "Sin criterios claros ni niveles definidos."
+  }
+};
+
+// ---------------------------
 // Criterios de Protocolos
 // ---------------------------
 const CRITERIOS_PROTOCOLO = [
@@ -53,23 +94,20 @@ const CRITERIOS_PROTOCOLO = [
 ];
 
 // ---------------------------
-// Mostrar Formulario de Planeaciones
+// Mostrar formularios
 // ---------------------------
 window.mostrarFormularioPlaneacion = function () {
   const contenedor = document.getElementById("formulario");
   contenedor.innerHTML = generarFormularioPlaneacion();
 };
 
-// ---------------------------
-// Mostrar Formulario de Protocolos
-// ---------------------------
 window.mostrarFormularioProtocolo = function () {
   const contenedor = document.getElementById("formulario");
   contenedor.innerHTML = generarFormularioProtocolo();
 };
 
 // ---------------------------
-// Generar Formulario Planeaciones
+// Formularios dinámicos
 // ---------------------------
 function generarFormularioPlaneacion() {
   const criteriosHTML = CRITERIOS_PLANEACION.map((criterio, i) => `
@@ -77,12 +115,16 @@ function generarFormularioPlaneacion() {
       <legend><strong>${criterio.nombre}</strong></legend>
       <div class="form-group">
         <label>Nivel:</label>
-        <select id="nivel-${i}" required data-puntos="${criterio.puntos}" class="nivel-select">
+        <select id="nivel-${i}" required data-puntos="${criterio.puntos}" class="nivel-select" data-nombre="${criterio.nombre}">
           <option value="">-- Selecciona --</option>
           <option value="Excelente">Excelente</option>
           <option value="Satisfactorio">Satisfactorio</option>
           <option value="Insuficiente">Insuficiente</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Descripción:</label>
+        <input type="text" id="descripcion-${i}" readonly />
       </div>
       <div class="form-group">
         <label>Observaciones personales:</label>
@@ -94,9 +136,6 @@ function generarFormularioPlaneacion() {
   return generarFormularioBase(criteriosHTML, "planeaciones", CRITERIOS_PLANEACION.length);
 }
 
-// ---------------------------
-// Generar Formulario Protocolos
-// ---------------------------
 function generarFormularioProtocolo() {
   const criteriosHTML = CRITERIOS_PROTOCOLO.map((criterio, i) => `
     <fieldset>
@@ -125,9 +164,6 @@ function generarFormularioProtocolo() {
   return generarFormularioBase(criteriosHTML, "protocolos", CRITERIOS_PROTOCOLO.length);
 }
 
-// ---------------------------
-// Formulario común
-// ---------------------------
 function generarFormularioBase(contenido, tipo, totalCriterios) {
   return `
     <form id="formularioRubrica" data-tipo="${tipo}" data-total="${totalCriterios}">
@@ -150,24 +186,56 @@ function generarFormularioBase(contenido, tipo, totalCriterios) {
 }
 
 // ---------------------------
-// Eventos especiales para protocolos
+// Eventos para protocolos y planeaciones
 // ---------------------------
 document.addEventListener("change", function (e) {
-  if (!e.target.classList.contains("nivel-protocolo")) return;
+  // Para protocolos
+  if (e.target.classList.contains("nivel-protocolo")) {
+    const index = e.target.dataset.index;
+    const nivel = e.target.value;
+    const nombre = e.target.dataset.nombre;
+    const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
+    const puntos = criterio?.niveles[nivel]?.puntos || 0;
+    const descripcion = criterio?.niveles[nivel]?.descripcion || "";
 
-  const index = e.target.dataset.index;
-  const nivel = e.target.value;
-  const nombre = e.target.dataset.nombre;
-  const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
-  const puntos = criterio?.niveles[nivel]?.puntos || 0;
-  const descripcion = criterio?.niveles[nivel]?.descripcion || "";
+    document.getElementById(`descripcion-${index}`).value = descripcion;
+    calcularPuntajeYConcepto("protocolos");
+  }
 
-  document.getElementById(`descripcion-${index}`).value = descripcion;
-  calcularPuntajeYConcepto("protocolos");
+  // Para planeaciones
+  if (e.target.classList.contains("nivel-select")) {
+    const selects = document.querySelectorAll(".nivel-select");
+    let total = 0;
+
+    selects.forEach((select, i) => {
+      const max = parseFloat(select.dataset.puntos);
+      const nivel = select.value;
+      const nombre = select.dataset.nombre;
+      const descripcion = DESCRIPCIONES[nombre]?.[nivel] || "";
+
+      if (document.getElementById(`descripcion-${i}`)) {
+        document.getElementById(`descripcion-${i}`).value = descripcion;
+      }
+
+      if (nivel === "Excelente") total += max;
+      else if (nivel === "Satisfactorio") total += max * 0.7;
+      else if (nivel === "Insuficiente") total += max * 0.4;
+    });
+
+    const totalRedondeado = +total.toFixed(1);
+    document.getElementById("puntuacionTotal").value = totalRedondeado;
+
+    let concepto = "❌ No Aprobado";
+    if (totalRedondeado >= 90) concepto = "✅ Sobresaliente";
+    else if (totalRedondeado >= 75) concepto = "✅ Notable";
+    else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+
+    document.getElementById("concepto").value = concepto;
+  }
 });
 
 // ---------------------------
-// Manejo del envío del formulario
+// Guardar formulario
 // ---------------------------
 document.addEventListener("submit", async function (e) {
   if (!e.target.matches("#formularioRubrica")) return;
@@ -189,6 +257,7 @@ document.addEventListener("submit", async function (e) {
   for (let i = 0; i < total; i++) {
     const nivel = document.getElementById(`nivel-${i}`).value;
     const observaciones = document.getElementById(`observaciones-${i}`).value;
+    const descripcion = document.getElementById(`descripcion-${i}`).value;
 
     let puntos = 0;
     if (tipo === "planeaciones") {
@@ -200,7 +269,13 @@ document.addEventListener("submit", async function (e) {
     }
 
     totalPuntos += puntos;
-    criteriosEvaluados.push({ nombre: tipo === "protocolos" ? CRITERIOS_PROTOCOLO[i].nombre : CRITERIOS_PLANEACION[i].nombre, nivel, puntos, observaciones });
+    criteriosEvaluados.push({
+      nombre: tipo === "protocolos" ? CRITERIOS_PROTOCOLO[i].nombre : CRITERIOS_PLANEACION[i].nombre,
+      nivel,
+      puntos,
+      descripcion,
+      observaciones
+    });
   }
 
   const puntuacionTotal = +totalPuntos.toFixed(1);
@@ -228,26 +303,6 @@ document.addEventListener("submit", async function (e) {
 });
 
 // ---------------------------
-// Calcular puntaje para protocolos
-// ---------------------------
-function calcularPuntajeYConcepto(tipo) {
-  if (tipo !== "protocolos") return;
-  let total = 0;
-
-  CRITERIOS_PROTOCOLO.forEach((crit, i) => {
-    const nivel = document.getElementById(`nivel-${i}`).value;
-    total += crit.niveles[nivel]?.puntos || 0;
-  });
-
-  document.getElementById("puntuacionTotal").value = total;
-  let concepto = "❌ No Aprobado";
-  if (total >= 90) concepto = "✅ Sobresaliente";
-  else if (total >= 75) concepto = "✅ Notable";
-  else if (total >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
-  document.getElementById("concepto").value = concepto;
-}
-
-// ---------------------------
 // Mostrar mensaje
 // ---------------------------
 function mostrarMensaje(texto, tipo) {
@@ -259,38 +314,4 @@ function mostrarMensaje(texto, tipo) {
     div.className = "message";
   }, 3000);
 }
-
-// ---------------------------
-// Calcular puntaje para planeaciones automáticamente
-// ---------------------------
-document.addEventListener("change", function (e) {
-  if (!e.target.classList.contains("nivel-select")) return;
-
-  let total = 0;
-
-  CRITERIOS_PLANEACION.forEach((criterio, i) => {
-    const select = document.getElementById(`nivel-${i}`);
-    if (!select) return;
-
-    const nivel = select.value;
-    const max = parseFloat(select.dataset.puntos);
-
-    let puntos = 0;
-    if (nivel === "Excelente") puntos = max;
-    else if (nivel === "Satisfactorio") puntos = max * 0.7;
-    else if (nivel === "Insuficiente") puntos = max * 0.4;
-
-    total += puntos;
-  });
-
-  const totalRedondeado = +total.toFixed(1);
-  document.getElementById("puntuacionTotal").value = totalRedondeado;
-
-  let concepto = "❌ No Aprobado";
-  if (totalRedondeado >= 90) concepto = "✅ Sobresaliente";
-  else if (totalRedondeado >= 75) concepto = "✅ Notable";
-  else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
-
-  document.getElementById("concepto").value = concepto;
-});
 
