@@ -77,27 +77,33 @@ window.mostrarFormularioProtocolo = function () {
 // ---------------------------
 // Generar Formulario Planeaciones
 // ---------------------------
-function generarFormularioPlaneacion() {
-  const criteriosHTML = CRITERIOS_PLANEACION.map((criterio, i) => `
+function generarFormularioPlaneacion(criteriosGuardados = null) {
+  const criteriosFinales = criteriosGuardados || CRITERIOS_PLANEACION.map((criterio) => ({
+    ...criterio,
+    nivel: "",
+    observaciones: ""
+  }));
+
+  const criteriosHTML = criteriosFinales.map((criterio, i) => `
     <fieldset>
       <legend><strong>${criterio.nombre}</strong></legend>
       <div class="form-group">
         <label>Nivel:</label>
         <select id="nivel-${i}" required data-puntos="${criterio.puntos}" class="nivel-select">
           <option value="">-- Selecciona --</option>
-          <option value="Excelente">Excelente</option>
-          <option value="Satisfactorio">Satisfactorio</option>
-          <option value="Insuficiente">Insuficiente</option>
+          <option value="Excelente" ${criterio.nivel === "Excelente" ? "selected" : ""}>Excelente</option>
+          <option value="Satisfactorio" ${criterio.nivel === "Satisfactorio" ? "selected" : ""}>Satisfactorio</option>
+          <option value="Insuficiente" ${criterio.nivel === "Insuficiente" ? "selected" : ""}>Insuficiente</option>
         </select>
       </div>
       <div class="form-group">
         <label>Observaciones personales:</label>
-        <input type="text" id="observaciones-${i}" />
+        <input type="text" id="observaciones-${i}" value="${criterio.observaciones || ""}" />
       </div>
     </fieldset>
   `).join("");
 
-  return generarFormularioBase(criteriosHTML, "planeaciones", CRITERIOS_PLANEACION.length);
+  return generarFormularioBase(criteriosHTML, "planeaciones", criteriosFinales.length);
 }
 
 // ---------------------------
@@ -318,7 +324,8 @@ window.editarRubrica = async function editarRubrica(grupo, rubricaId) {
   document.getElementById("editarPlaneacion").style.display = "none";
 
   // Suponiendo que tu función renderiza criterios en la interfaz
-  renderizarCriterios("planeacion", datos.criterios);
+  document.getElementById("formulario").innerHTML = generarFormularioPlaneacion(datos.criterios);
+
 };
 
 async function guardarRubricaPlaneacion(grupo, datos) {
