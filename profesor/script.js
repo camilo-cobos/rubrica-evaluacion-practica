@@ -257,7 +257,7 @@ document.addEventListener("submit", async function (e) {
   for (let i = 0; i < total; i++) {
     const nivel = document.getElementById(`nivel-${i}`).value;
     const observaciones = document.getElementById(`observaciones-${i}`).value;
-    const descripcion = document.getElementById(`descripcion-${i}`).value;
+    const descripcion = document.getElementById(`descripcion-${i}`)?.value || "";
 
     let puntos = 0;
     if (tipo === "planeaciones") {
@@ -280,9 +280,15 @@ document.addEventListener("submit", async function (e) {
 
   const puntuacionTotal = +totalPuntos.toFixed(1);
   let concepto = "❌ No Aprobado";
-  if (puntuacionTotal >= 90) concepto = "✅ Sobresaliente";
-  else if (puntuacionTotal >= 75) concepto = "✅ Notable";
-  else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+
+  if (tipo === "planeaciones") {
+    if (puntuacionTotal >= 80) concepto = "✅ Aprobado";
+    else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+  } else {
+    if (puntuacionTotal >= 90) concepto = "✅ Sobresaliente";
+    else if (puntuacionTotal >= 75) concepto = "✅ Notable";
+    else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+  }
 
   const datos = {
     grupo,
@@ -301,6 +307,7 @@ document.addEventListener("submit", async function (e) {
     mostrarMensaje("❌ Error al guardar la rúbrica", "error");
   }
 });
+
 
 // ---------------------------
 // Mostrar mensaje
