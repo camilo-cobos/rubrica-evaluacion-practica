@@ -285,6 +285,16 @@ function editarRubrica(grupo, rubricaId) {
   });
 }
 
+
+// ---------------------------
+// Registrar funciones globales
+// ---------------------------
+window.mostrarFormularioPlaneacion = mostrarFormularioPlaneacion;
+window.mostrarFormularioProtocolo = mostrarFormularioProtocolo;
+window.mostrarSelectorEdicion = mostrarSelectorEdicion;
+window.cargarRubricasParaEditar = cargarRubricasParaEditar;
+window.editarRubrica = editarRubrica;
+
 document.addEventListener("change", function (e) {
   if (!e.target.classList.contains("nivel-select")) return;
 
@@ -310,13 +320,3 @@ document.addEventListener("change", function (e) {
 
   document.getElementById("concepto").value = concepto;
 });
-
-
-// ---------------------------
-// Registrar funciones globales
-// ---------------------------
-window.mostrarFormularioPlaneacion = mostrarFormularioPlaneacion;
-window.mostrarFormularioProtocolo = mostrarFormularioProtocolo;
-window.mostrarSelectorEdicion = mostrarSelectorEdicion;
-window.cargarRubricasParaEditar = cargarRubricasParaEditar;
-window.editarRubrica = editarRubrica;
