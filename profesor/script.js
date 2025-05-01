@@ -10,7 +10,6 @@ import {
   query
 } from "../firebase-setup.js";
 
-
 // ---------------------------
 // Criterios de Planeaciones
 // ---------------------------
@@ -59,27 +58,22 @@ const CRITERIOS_PROTOCOLO = [
 ];
 
 // ---------------------------
-// Mostrar Formulario de Planeaciones
+// Mostrar formularios
 // ---------------------------
 window.mostrarFormularioPlaneacion = function () {
-  const contenedor = document.getElementById("formulario");
-  contenedor.innerHTML = generarFormularioPlaneacion();
+  document.getElementById("formulario").innerHTML = generarFormularioPlaneacion();
 };
 
-// ---------------------------
-// Mostrar Formulario de Protocolos
-// ---------------------------
 window.mostrarFormularioProtocolo = function () {
-  const contenedor = document.getElementById("formulario");
-  contenedor.innerHTML = generarFormularioProtocolo();
+  document.getElementById("formulario").innerHTML = generarFormularioProtocolo();
 };
 
 // ---------------------------
-// Generar Formulario Planeaciones
+// Formulario de Planeaciones
 // ---------------------------
 function generarFormularioPlaneacion(criteriosGuardados = null) {
-  const criteriosFinales = criteriosGuardados || CRITERIOS_PLANEACION.map((criterio) => ({
-    ...criterio,
+  const criteriosFinales = criteriosGuardados || CRITERIOS_PLANEACION.map(c => ({
+    ...c,
     nivel: "",
     observaciones: ""
   }));
@@ -103,11 +97,28 @@ function generarFormularioPlaneacion(criteriosGuardados = null) {
     </fieldset>
   `).join("");
 
-  return generarFormularioBase(criteriosHTML, "planeaciones", criteriosFinales.length);
+  return `
+    <form id="formularioRubrica" data-tipo="planeaciones" data-total="${criteriosFinales.length}">
+      ${criteriosHTML}
+      <div class="form-group">
+        <label for="fechaEvaluacion">Fecha de evaluación:</label>
+        <input type="date" id="fechaEvaluacion" required />
+      </div>
+      <div class="form-group">
+        <label for="puntuacionTotal">Puntuación total:</label>
+        <input type="number" id="puntuacionTotal" readonly />
+      </div>
+      <div class="form-group">
+        <label for="concepto">Resultado:</label>
+        <input type="text" id="concepto" readonly />
+      </div>
+      <button type="submit">Guardar Rúbrica</button>
+    </form>
+  `;
 }
 
 // ---------------------------
-// Generar Formulario Protocolos
+// Formulario de Protocolos
 // ---------------------------
 function generarFormularioProtocolo() {
   const criteriosHTML = CRITERIOS_PROTOCOLO.map((criterio, i) => `
@@ -134,16 +145,9 @@ function generarFormularioProtocolo() {
     </fieldset>
   `).join("");
 
-  return generarFormularioBase(criteriosHTML, "protocolos", CRITERIOS_PROTOCOLO.length);
-}
-
-// ---------------------------
-// Formulario común
-// ---------------------------
-function generarFormularioBase(contenido, tipo, totalCriterios) {
   return `
-    <form id="formularioRubrica" data-tipo="${tipo}" data-total="${totalCriterios}">
-      ${contenido}
+    <form id="formularioRubrica" data-tipo="protocolos" data-total="${CRITERIOS_PROTOCOLO.length}">
+      ${criteriosHTML}
       <div class="form-group">
         <label for="fechaEvaluacion">Fecha de evaluación:</label>
         <input type="date" id="fechaEvaluacion" required />
@@ -162,24 +166,26 @@ function generarFormularioBase(contenido, tipo, totalCriterios) {
 }
 
 // ---------------------------
-// Eventos especiales para protocolos
+// Lógica de guardado
 // ---------------------------
-document.addEventListener("change", function (e) {
-  if (!e.target.classList.contains("nivel-protocolo")) return;
+let idRúbricaAEditar = null;
 
-  const index = e.target.dataset.index;
-  const nivel = e.target.value;
-  const nombre = e.target.dataset.nombre;
-  const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
-  const puntos = criterio?.niveles[nivel]?.puntos || 0;
-  const descripcion = criterio?.niveles[nivel]?.descripcion || "";
-
-  document.getElementById(`descripcion-${index}`).value = descripcion;
-  calcularPuntajeYConcepto("protocolos");
-});
+async function guardarRubricaPlaneacion(grupo, datos) {
+  if (idRúbricaAEditar) {
+    const ref = doc(db, "rubricas", grupo, "planeaciones", idRúbricaAEditar);
+    await updateDoc(ref, datos);
+    alert("✅ Rúbrica editada correctamente.");
+    idRúbricaAEditar = null;
+  } else {
+    const ref = collection(db, "rubricas", grupo, "planeaciones");
+    await addDoc(ref, datos);
+    alert("✅ Nueva rúbrica guardada.");
+  }
+  document.getElementById("formulario").innerHTML = "";
+}
 
 // ---------------------------
-// Manejo del envío del formulario
+// Envío del formulario
 // ---------------------------
 document.addEventListener("submit", async function (e) {
   if (!e.target.matches("#formularioRubrica")) return;
@@ -190,19 +196,14 @@ document.addEventListener("submit", async function (e) {
   const tipo = e.target.dataset.tipo;
   const total = parseInt(e.target.dataset.total);
 
-  if (!grupo || !fecha) {
-    alert("Selecciona grupo y fecha.");
-    return;
-  }
-
   let totalPuntos = 0;
   const criteriosEvaluados = [];
 
   for (let i = 0; i < total; i++) {
     const nivel = document.getElementById(`nivel-${i}`).value;
-    const observaciones = document.getElementById(`observaciones-${i}`).value;
-
+    const observaciones = document.getElementById(`observaciones-${i}`)?.value || "";
     let puntos = 0;
+
     if (tipo === "planeaciones") {
       const max = parseFloat(document.getElementById(`nivel-${i}`).dataset.puntos);
       puntos = nivel === "Excelente" ? max : nivel === "Satisfactorio" ? max * 0.7 : max * 0.4;
@@ -230,69 +231,11 @@ document.addEventListener("submit", async function (e) {
     timestamp: serverTimestamp()
   };
 
-  try {
-    await addDoc(collection(db, "rubricas", grupo, tipo), datos);
-    mostrarMensaje("✅ Rúbrica guardada correctamente", "success");
-  } catch (error) {
-    console.error(error);
-    mostrarMensaje("❌ Error al guardar la rúbrica", "error");
-  }
+  await guardarRubricaPlaneacion(grupo, datos);
 });
 
 // ---------------------------
-// Calcular puntaje para protocolos
-// ---------------------------
-function calcularPuntajeYConcepto(tipo) {
-  if (tipo !== "protocolos") return;
-  let total = 0;
-
-  CRITERIOS_PROTOCOLO.forEach((crit, i) => {
-    const nivel = document.getElementById(`nivel-${i}`).value;
-    total += crit.niveles[nivel]?.puntos || 0;
-  });
-
-  document.getElementById("puntuacionTotal").value = total;
-  let concepto = "❌ No Aprobado";
-  if (total >= 90) concepto = "✅ Sobresaliente";
-  else if (total >= 75) concepto = "✅ Notable";
-  else if (total >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
-  document.getElementById("concepto").value = concepto;
-}
-
-// ---------------------------
-// Mostrar mensaje
-// ---------------------------
-function mostrarMensaje(texto, tipo) {
-  const div = document.getElementById("mensaje");
-  div.textContent = texto;
-  div.className = `message ${tipo}`;
-  setTimeout(() => {
-    div.textContent = "";
-    div.className = "message";
-  }, 3000);
-}
-
-// ---------------------------
-// Lógica de guardar rúbrica (creación o edición)
-// ---------------------------
-let idRúbricaAEditar = null;
-
-async function guardarRubricaPlaneacion(grupo, datos) {
-  if (idRúbricaAEditar) {
-    const ref = doc(db, "rubricas", grupo, "planeaciones", idRúbricaAEditar);
-    await updateDoc(ref, datos);
-    alert("✅ Rúbrica editada correctamente.");
-    idRúbricaAEditar = null;
-  } else {
-    const ref = collection(db, "rubricas", grupo, "planeaciones");
-    await addDoc(ref, datos);
-    alert("✅ Nueva rúbrica guardada.");
-  }
-  document.getElementById("formulario").innerHTML = "";
-}
-
-// ---------------------------
-// Mostrar formulario para editar planeaciones
+// Funciones de edición
 // ---------------------------
 function mostrarSelectorEdicion() {
   document.getElementById("editarPlaneacion").style.display = "block";
@@ -342,7 +285,11 @@ function editarRubrica(grupo, rubricaId) {
   });
 }
 
-// ✅ Registrar funciones globales para onclick
-window.editarRubrica = editarRubrica;
-window.cargarRubricasParaEditar = cargarRubricasParaEditar;
+// ---------------------------
+// Registrar funciones globales
+// ---------------------------
+window.mostrarFormularioPlaneacion = mostrarFormularioPlaneacion;
+window.mostrarFormularioProtocolo = mostrarFormularioProtocolo;
 window.mostrarSelectorEdicion = mostrarSelectorEdicion;
+window.cargarRubricasParaEditar = cargarRubricasParaEditar;
+window.editarRubrica = editarRubrica;
