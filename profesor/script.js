@@ -272,62 +272,10 @@ function mostrarMensaje(texto, tipo) {
   }, 3000);
 }
 
+// ---------------------------
+// Lógica de guardar rúbrica (creación o edición)
+// ---------------------------
 let idRúbricaAEditar = null;
-
-window.mostrarSelectorEdicion = function () {
-  document.getElementById("editarPlaneacion").style.display = "block";
-  document.getElementById("formulario").innerHTML = "";
-};
-
-window.editarRubrica = async function editarRubrica(grupo, rubricaId) {
-  const ref = doc(db, "rubricas", grupo, "planeaciones", rubricaId);
-  const docSnap = await getDoc(ref);
-  if (!docSnap.exists()) return alert("No se encontró la rúbrica.");
-
-  const datos = docSnap.data();
-  idRúbricaAEditar = rubricaId;
-
-  // Rellenar el formulario
-  document.getElementById("grupo").value = grupo;
-  document.getElementById("fechaEvaluacion").value = datos.fechaEvaluacion.split("T")[0];
-  document.getElementById("formularioRubrica").style.display = "block";
-  document.getElementById("editarPlaneacion").style.display = "none";
-
-  // Suponiendo que tu función renderiza criterios en la interfaz
-  document.getElementById("formulario").innerHTML = generarFormularioPlaneacion(datos.criterios);
-
-};
-
-
-window.cargarRubricasParaEditar = async function () {
-  const grupo = document.getElementById("grupoEditar").value;
-  if (!grupo) return alert("Selecciona un grupo.");
-
-  const ref = collection(db, "rubricas", grupo, "planeaciones");
-  const snap = await getDocs(query(ref));
-
-  const lista = document.getElementById("listaRubricas");
-  lista.innerHTML = "<h4>Planeaciones encontradas:</h4>";
-
-  if (snap.empty) {
-    lista.innerHTML += "<p>No hay planeaciones para este grupo.</p>";
-    return;
-  }
-
-  snap.forEach(docSnap => {
-    const datos = docSnap.data();
-    const fecha = new Date(datos.fechaEvaluacion).toLocaleDateString("es-ES");
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <p style="margin-bottom:10px;">
-        📅 <strong>${fecha}</strong> — 
-        <button onclick="window.editarRubrica('${grupo}', '${docSnap.id}')">✏️ Editar</button>
-      </p>
-    `;
-
-    lista.appendChild(div);
-  });
-};
 
 async function guardarRubricaPlaneacion(grupo, datos) {
   if (idRúbricaAEditar) {
@@ -340,9 +288,61 @@ async function guardarRubricaPlaneacion(grupo, datos) {
     await addDoc(ref, datos);
     alert("✅ Nueva rúbrica guardada.");
   }
-
   document.getElementById("formulario").innerHTML = "";
 }
 
+// ---------------------------
+// Mostrar formulario para editar planeaciones
+// ---------------------------
+function mostrarSelectorEdicion() {
+  document.getElementById("editarPlaneacion").style.display = "block";
+  document.getElementById("formulario").innerHTML = "";
+}
 
+function cargarRubricasParaEditar() {
+  const grupo = document.getElementById("grupoEditar").value;
+  if (!grupo) return alert("Selecciona un grupo.");
 
+  const ref = collection(db, "rubricas", grupo, "planeaciones");
+  getDocs(query(ref)).then(snap => {
+    const lista = document.getElementById("listaRubricas");
+    lista.innerHTML = "<h4>Planeaciones encontradas:</h4>";
+
+    if (snap.empty) {
+      lista.innerHTML += "<p>No hay planeaciones para este grupo.</p>";
+      return;
+    }
+
+    snap.forEach(docSnap => {
+      const datos = docSnap.data();
+      const fecha = new Date(datos.fechaEvaluacion).toLocaleDateString("es-ES");
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <p style="margin-bottom:10px;">
+          📅 <strong>${fecha}</strong> — 
+          <button onclick="editarRubrica('${grupo}', '${docSnap.id}')">✏️ Editar</button>
+        </p>
+      `;
+      lista.appendChild(div);
+    });
+  });
+}
+
+function editarRubrica(grupo, rubricaId) {
+  const ref = doc(db, "rubricas", grupo, "planeaciones", rubricaId);
+  getDoc(ref).then(docSnap => {
+    if (!docSnap.exists()) return alert("No se encontró la rúbrica.");
+
+    const datos = docSnap.data();
+    idRúbricaAEditar = rubricaId;
+    document.getElementById("grupo").value = grupo;
+    document.getElementById("editarPlaneacion").style.display = "none";
+    document.getElementById("formulario").innerHTML = generarFormularioPlaneacion(datos.criterios);
+    document.getElementById("fechaEvaluacion").value = datos.fechaEvaluacion.split("T")[0];
+  });
+}
+
+// ✅ Registrar funciones globales para onclick
+window.editarRubrica = editarRubrica;
+window.cargarRubricasParaEditar = cargarRubricasParaEditar;
+window.mostrarSelectorEdicion = mostrarSelectorEdicion;
