@@ -299,7 +299,7 @@ window.cargarRubricasParaEditar = async function () {
   });
 };
 
-window.editarRubrica = async function (grupo, rubricaId) {
+window.editarRubrica = async function editarRubrica(grupo, rubricaId) {
   const ref = doc(db, "rubricas", grupo, "planeaciones", rubricaId);
   const docSnap = await getDoc(ref);
   if (!docSnap.exists()) return alert("No se encontró la rúbrica.");
