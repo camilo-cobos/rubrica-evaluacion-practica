@@ -301,19 +301,23 @@ document.addEventListener("change", function (e) {
   const selects = document.querySelectorAll(".nivel-select");
   let total = 0;
 
-  selects.forEach((select) => {
-    const max = parseFloat(select.dataset.puntos);
+  selects.forEach((select, i) => {
     const nivel = select.value;
+    const max = parseFloat(select.dataset.puntos);
 
     let puntos = 0;
-    if (nivel === "Excelente") puntos = max;
-    else if (nivel === "Satisfactorio") puntos = max * 0.7;
-    else if (nivel === "Insuficiente") puntos = max * 0.4;
+    if (nivel === "Excelente") {
+      puntos = max;
+    } else if (nivel === "Satisfactorio") {
+      puntos = max * 0.7;
+    } else if (nivel === "Insuficiente") {
+      puntos = max * 0.4;
+    }
 
     total += puntos;
   });
 
-  const puntuacionTotal = +total.toFixed(1);
+  const puntuacionTotal = parseFloat(total.toFixed(1));
   document.getElementById("puntuacionTotal").value = puntuacionTotal;
 
   let concepto = "❌ No Aprobado";
@@ -323,4 +327,5 @@ document.addEventListener("change", function (e) {
 
   document.getElementById("concepto").value = concepto;
 });
+
 
