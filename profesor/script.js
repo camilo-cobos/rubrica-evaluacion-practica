@@ -285,6 +285,33 @@ function editarRubrica(grupo, rubricaId) {
   });
 }
 
+document.addEventListener("change", function (e) {
+  if (!e.target.classList.contains("nivel-select")) return;
+
+  const selects = document.querySelectorAll(".nivel-select");
+  let total = 0;
+
+  selects.forEach((select, i) => {
+    const max = parseFloat(select.dataset.puntos);
+    const nivel = select.value;
+    const puntos = nivel === "Excelente" ? max :
+                   nivel === "Satisfactorio" ? max * 0.7 :
+                   nivel === "Insuficiente" ? max * 0.4 : 0;
+    total += puntos;
+  });
+
+  const totalRedondeado = +total.toFixed(1);
+  document.getElementById("puntuacionTotal").value = totalRedondeado;
+
+  let concepto = "❌ No Aprobado";
+  if (totalRedondeado >= 90) concepto = "✅ Sobresaliente";
+  else if (totalRedondeado >= 75) concepto = "✅ Notable";
+  else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+
+  document.getElementById("concepto").value = concepto;
+});
+
+
 // ---------------------------
 // Registrar funciones globales
 // ---------------------------
