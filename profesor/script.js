@@ -293,8 +293,12 @@ window.cargarRubricasParaEditar = async function () {
     const fecha = new Date(datos.fechaEvaluacion).toLocaleDateString("es-ES");
     const div = document.createElement("div");
     div.innerHTML = `
-      📅 ${fecha} — <button onclick="editarRubrica('${grupo}', '${docSnap.id}')">✏️ Editar</button>
+      <p style="margin-bottom:10px;">
+        📅 <strong>${fecha}</strong> — 
+        <button onclick="window.editarRubrica('${grupo}', '${docSnap.id}')">✏️ Editar</button>
+      </p>
     `;
+
     lista.appendChild(div);
   });
 };
