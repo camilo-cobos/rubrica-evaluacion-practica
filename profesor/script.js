@@ -2,12 +2,7 @@ import {
   db,
   collection,
   addDoc,
-  serverTimestamp,
-  doc,
-  updateDoc,
-  getDoc,
-  getDocs,
-  query
+  serverTimestamp
 } from "../firebase-setup.js";
 
 // ---------------------------
@@ -58,67 +53,49 @@ const CRITERIOS_PROTOCOLO = [
 ];
 
 // ---------------------------
-// Mostrar formularios
+// Mostrar Formulario de Planeaciones
 // ---------------------------
 window.mostrarFormularioPlaneacion = function () {
-  document.getElementById("formulario").innerHTML = generarFormularioPlaneacion();
+  const contenedor = document.getElementById("formulario");
+  contenedor.innerHTML = generarFormularioPlaneacion();
 };
 
+// ---------------------------
+// Mostrar Formulario de Protocolos
+// ---------------------------
 window.mostrarFormularioProtocolo = function () {
-  document.getElementById("formulario").innerHTML = generarFormularioProtocolo();
+  const contenedor = document.getElementById("formulario");
+  contenedor.innerHTML = generarFormularioProtocolo();
 };
 
 // ---------------------------
-// Formulario de Planeaciones
+// Generar Formulario Planeaciones
 // ---------------------------
-function generarFormularioPlaneacion(criteriosGuardados = null) {
-  const criteriosFinales = criteriosGuardados || CRITERIOS_PLANEACION.map(c => ({
-    ...c,
-    nivel: "",
-    observaciones: ""
-  }));
-
-  const criteriosHTML = criteriosFinales.map((criterio, i) => `
+function generarFormularioPlaneacion() {
+  const criteriosHTML = CRITERIOS_PLANEACION.map((criterio, i) => `
     <fieldset>
       <legend><strong>${criterio.nombre}</strong></legend>
       <div class="form-group">
         <label>Nivel:</label>
         <select id="nivel-${i}" required data-puntos="${criterio.puntos}" class="nivel-select">
           <option value="">-- Selecciona --</option>
-          <option value="Excelente" ${criterio.nivel === "Excelente" ? "selected" : ""}>Excelente</option>
-          <option value="Satisfactorio" ${criterio.nivel === "Satisfactorio" ? "selected" : ""}>Satisfactorio</option>
-          <option value="Insuficiente" ${criterio.nivel === "Insuficiente" ? "selected" : ""}>Insuficiente</option>
+          <option value="Excelente">Excelente</option>
+          <option value="Satisfactorio">Satisfactorio</option>
+          <option value="Insuficiente">Insuficiente</option>
         </select>
       </div>
       <div class="form-group">
         <label>Observaciones personales:</label>
-        <input type="text" id="observaciones-${i}" value="${criterio.observaciones || ""}" />
+        <input type="text" id="observaciones-${i}" />
       </div>
     </fieldset>
   `).join("");
 
-  return `
-    <form id="formularioRubrica" data-tipo="planeaciones" data-total="${criteriosFinales.length}">
-      ${criteriosHTML}
-      <div class="form-group">
-        <label for="fechaEvaluacion">Fecha de evaluación:</label>
-        <input type="date" id="fechaEvaluacion" required />
-      </div>
-      <div class="form-group">
-        <label for="puntuacionTotal">Puntuación total:</label>
-        <input type="number" id="puntuacionTotal" readonly />
-      </div>
-      <div class="form-group">
-        <label for="concepto">Resultado:</label>
-        <input type="text" id="concepto" readonly />
-      </div>
-      <button type="submit">Guardar Rúbrica</button>
-    </form>
-  `;
+  return generarFormularioBase(criteriosHTML, "planeaciones", CRITERIOS_PLANEACION.length);
 }
 
 // ---------------------------
-// Formulario de Protocolos
+// Generar Formulario Protocolos
 // ---------------------------
 function generarFormularioProtocolo() {
   const criteriosHTML = CRITERIOS_PROTOCOLO.map((criterio, i) => `
@@ -145,9 +122,16 @@ function generarFormularioProtocolo() {
     </fieldset>
   `).join("");
 
+  return generarFormularioBase(criteriosHTML, "protocolos", CRITERIOS_PROTOCOLO.length);
+}
+
+// ---------------------------
+// Formulario común
+// ---------------------------
+function generarFormularioBase(contenido, tipo, totalCriterios) {
   return `
-    <form id="formularioRubrica" data-tipo="protocolos" data-total="${CRITERIOS_PROTOCOLO.length}">
-      ${criteriosHTML}
+    <form id="formularioRubrica" data-tipo="${tipo}" data-total="${totalCriterios}">
+      ${contenido}
       <div class="form-group">
         <label for="fechaEvaluacion">Fecha de evaluación:</label>
         <input type="date" id="fechaEvaluacion" required />
@@ -166,26 +150,24 @@ function generarFormularioProtocolo() {
 }
 
 // ---------------------------
-// Lógica de guardado
+// Eventos especiales para protocolos
 // ---------------------------
-let idRúbricaAEditar = null;
+document.addEventListener("change", function (e) {
+  if (!e.target.classList.contains("nivel-protocolo")) return;
 
-async function guardarRubricaPlaneacion(grupo, datos) {
-  if (idRúbricaAEditar) {
-    const ref = doc(db, "rubricas", grupo, "planeaciones", idRúbricaAEditar);
-    await updateDoc(ref, datos);
-    alert("✅ Rúbrica editada correctamente.");
-    idRúbricaAEditar = null;
-  } else {
-    const ref = collection(db, "rubricas", grupo, "planeaciones");
-    await addDoc(ref, datos);
-    alert("✅ Nueva rúbrica guardada.");
-  }
-  document.getElementById("formulario").innerHTML = "";
-}
+  const index = e.target.dataset.index;
+  const nivel = e.target.value;
+  const nombre = e.target.dataset.nombre;
+  const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
+  const puntos = criterio?.niveles[nivel]?.puntos || 0;
+  const descripcion = criterio?.niveles[nivel]?.descripcion || "";
+
+  document.getElementById(`descripcion-${index}`).value = descripcion;
+  calcularPuntajeYConcepto("protocolos");
+});
 
 // ---------------------------
-// Envío del formulario
+// Manejo del envío del formulario
 // ---------------------------
 document.addEventListener("submit", async function (e) {
   if (!e.target.matches("#formularioRubrica")) return;
@@ -196,14 +178,19 @@ document.addEventListener("submit", async function (e) {
   const tipo = e.target.dataset.tipo;
   const total = parseInt(e.target.dataset.total);
 
+  if (!grupo || !fecha) {
+    alert("Selecciona grupo y fecha.");
+    return;
+  }
+
   let totalPuntos = 0;
   const criteriosEvaluados = [];
 
   for (let i = 0; i < total; i++) {
     const nivel = document.getElementById(`nivel-${i}`).value;
-    const observaciones = document.getElementById(`observaciones-${i}`)?.value || "";
-    let puntos = 0;
+    const observaciones = document.getElementById(`observaciones-${i}`).value;
 
+    let puntos = 0;
     if (tipo === "planeaciones") {
       const max = parseFloat(document.getElementById(`nivel-${i}`).dataset.puntos);
       puntos = nivel === "Excelente" ? max : nivel === "Satisfactorio" ? max * 0.7 : max * 0.4;
@@ -231,101 +218,45 @@ document.addEventListener("submit", async function (e) {
     timestamp: serverTimestamp()
   };
 
-  await guardarRubricaPlaneacion(grupo, datos);
+  try {
+    await addDoc(collection(db, "rubricas", grupo, tipo), datos);
+    mostrarMensaje("✅ Rúbrica guardada correctamente", "success");
+  } catch (error) {
+    console.error(error);
+    mostrarMensaje("❌ Error al guardar la rúbrica", "error");
+  }
 });
 
 // ---------------------------
-// Funciones de edición
+// Calcular puntaje para protocolos
 // ---------------------------
-function mostrarSelectorEdicion() {
-  document.getElementById("editarPlaneacion").style.display = "block";
-  document.getElementById("formulario").innerHTML = "";
-}
-
-function cargarRubricasParaEditar() {
-  const grupo = document.getElementById("grupoEditar").value;
-  if (!grupo) return alert("Selecciona un grupo.");
-
-  const ref = collection(db, "rubricas", grupo, "planeaciones");
-  getDocs(query(ref)).then(snap => {
-    const lista = document.getElementById("listaRubricas");
-    lista.innerHTML = "<h4>Planeaciones encontradas:</h4>";
-
-    if (snap.empty) {
-      lista.innerHTML += "<p>No hay planeaciones para este grupo.</p>";
-      return;
-    }
-
-    snap.forEach(docSnap => {
-      const datos = docSnap.data();
-      const fecha = new Date(datos.fechaEvaluacion).toLocaleDateString("es-ES");
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <p style="margin-bottom:10px;">
-          📅 <strong>${fecha}</strong> — 
-          <button onclick="editarRubrica('${grupo}', '${docSnap.id}')">✏️ Editar</button>
-        </p>
-      `;
-      lista.appendChild(div);
-    });
-  });
-}
-
-function editarRubrica(grupo, rubricaId) {
-  const ref = doc(db, "rubricas", grupo, "planeaciones", rubricaId);
-  getDoc(ref).then(docSnap => {
-    if (!docSnap.exists()) return alert("No se encontró la rúbrica.");
-
-    const datos = docSnap.data();
-    idRúbricaAEditar = rubricaId;
-    document.getElementById("grupo").value = grupo;
-    document.getElementById("editarPlaneacion").style.display = "none";
-    document.getElementById("formulario").innerHTML = generarFormularioPlaneacion(datos.criterios);
-    document.getElementById("fechaEvaluacion").value = datos.fechaEvaluacion.split("T")[0];
-  });
-}
-
-
-// ---------------------------
-// Registrar funciones globales
-// ---------------------------
-window.mostrarFormularioPlaneacion = mostrarFormularioPlaneacion;
-window.mostrarFormularioProtocolo = mostrarFormularioProtocolo;
-window.mostrarSelectorEdicion = mostrarSelectorEdicion;
-window.cargarRubricasParaEditar = cargarRubricasParaEditar;
-window.editarRubrica = editarRubrica;
-
-document.addEventListener("change", function (e) {
-  if (!e.target.classList.contains("nivel-select")) return;
-
-  const selects = document.querySelectorAll(".nivel-select");
+function calcularPuntajeYConcepto(tipo) {
+  if (tipo !== "protocolos") return;
   let total = 0;
 
-  selects.forEach((select, i) => {
-    const nivel = select.value;
-    const max = parseFloat(select.dataset.puntos);
-
-    let puntos = 0;
-    if (nivel === "Excelente") {
-      puntos = max;
-    } else if (nivel === "Satisfactorio") {
-      puntos = max * 0.7;
-    } else if (nivel === "Insuficiente") {
-      puntos = max * 0.4;
-    }
-
-    total += puntos;
+  CRITERIOS_PROTOCOLO.forEach((crit, i) => {
+    const nivel = document.getElementById(`nivel-${i}`).value;
+    total += crit.niveles[nivel]?.puntos || 0;
   });
 
-  const puntuacionTotal = parseFloat(total.toFixed(1));
-  document.getElementById("puntuacionTotal").value = puntuacionTotal;
-
+  document.getElementById("puntuacionTotal").value = total;
   let concepto = "❌ No Aprobado";
-  if (puntuacionTotal >= 90) concepto = "✅ Sobresaliente";
-  else if (puntuacionTotal >= 75) concepto = "✅ Notable";
-  else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
-
+  if (total >= 90) concepto = "✅ Sobresaliente";
+  else if (total >= 75) concepto = "✅ Notable";
+  else if (total >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
   document.getElementById("concepto").value = concepto;
-});
+}
 
+// ---------------------------
+// Mostrar mensaje
+// ---------------------------
+function mostrarMensaje(texto, tipo) {
+  const div = document.getElementById("mensaje");
+  div.textContent = texto;
+  div.className = `message ${tipo}`;
+  setTimeout(() => {
+    div.textContent = "";
+    div.className = "message";
+  }, 3000);
+}
 

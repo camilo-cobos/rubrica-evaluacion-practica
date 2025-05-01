@@ -30,43 +30,19 @@
     <div class="form-group">
       <button onclick="mostrarFormularioPlaneacion()">🧾 Calificar Planeación</button>
       <button onclick="mostrarFormularioProtocolo()">📄 Calificar Protocolo</button>
-      <button onclick="mostrarSelectorEdicion()">✏️ Editar Planeación</button>
       <button onclick="window.location.href='estadisticas.html'">📊 Ver estadísticas</button>
     </div>
 
-    <!-- Aquí se insertan formularios dinámicos -->
+
     <div id="formulario"></div>
 
-    <!-- Mensajes al docente -->
     <div id="mensaje" class="message"></div>
-
-    <!-- Sección oculta: Edición de planeaciones -->
-    <div id="editarPlaneacion" style="display:none; margin-top:30px;">
-      <h3>✏️ Editar Planeación Calificada</h3>
-      <label for="grupoEditar">Selecciona un grupo:</label>
-      <select id="grupoEditar">
-        <option value="">-- Selecciona --</option>
-        <option value="Grupo1">Grupo 1</option>
-        <option value="Grupo2">Grupo 2</option>
-        <option value="Grupo3">Grupo 3</option>
-        <option value="Grupo4">Grupo 4</option>
-        <option value="Grupo5">Grupo 5</option>
-        <option value="Grupo6">Grupo 6</option>
-        <option value="Grupo7">Grupo 7</option>
-        <option value="Grupo8">Grupo 8</option>
-        <option value="Grupo9">Grupo 9</option>
-        <option value="Grupo10">Grupo 10</option>
-      </select>
-      <button onclick="cargarRubricasParaEditar()">Buscar</button>
-      <div id="listaRubricas" style="margin-top:15px;"></div>
-    </div>
 
     <button onclick="window.location.href='../index.html'" style="margin-top: 20px;">Volver</button>
   </div>
 
-  <!-- 🔗 Conexión con Firebase y lógica del docente -->
+  <!-- 🔗 Conexión con Firebase y el script del docente -->
   <script type="module" src="../firebase-setup.js"></script>
   <script type="module" src="script.js"></script>
 </body>
 </html>
-
