@@ -186,52 +186,55 @@ function generarFormularioBase(contenido, tipo, totalCriterios) {
 }
 
 // ---------------------------
-// Eventos para protocolos y planeaciones
+// Cálculo automático
 // ---------------------------
 document.addEventListener("change", function (e) {
-  // Para protocolos
-  if (e.target.classList.contains("nivel-protocolo")) {
-    const index = e.target.dataset.index;
-    const nivel = e.target.value;
-    const nombre = e.target.dataset.nombre;
-    const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
-    const puntos = criterio?.niveles[nivel]?.puntos || 0;
-    const descripcion = criterio?.niveles[nivel]?.descripcion || "";
+  const form = document.getElementById("formularioRubrica");
+  if (!form) return;
 
-    document.getElementById(`descripcion-${index}`).value = descripcion;
-    calcularPuntajeYConcepto("protocolos");
+  const tipo = form.dataset.tipo;
+  const total = parseInt(form.dataset.total);
+  let totalPuntos = 0;
+
+  for (let i = 0; i < total; i++) {
+    const nivelSelect = document.getElementById(`nivel-${i}`);
+    if (!nivelSelect) continue;
+
+    const nivel = nivelSelect.value;
+    const nombre = nivelSelect.dataset.nombre;
+    let puntos = 0;
+
+    if (tipo === "planeaciones") {
+      const max = parseFloat(nivelSelect.dataset.puntos);
+      puntos = nivel === "Excelente" ? max : nivel === "Satisfactorio" ? max * 0.7 : max * 0.4;
+      const descripcion = DESCRIPCIONES[nombre]?.[nivel] || "";
+      const descripcionInput = document.getElementById(`descripcion-${i}`);
+      if (descripcionInput) descripcionInput.value = descripcion;
+    } else if (tipo === "protocolos") {
+      const criterio = CRITERIOS_PROTOCOLO.find(c => c.nombre === nombre);
+      puntos = criterio?.niveles[nivel]?.puntos || 0;
+      const descripcion = criterio?.niveles[nivel]?.descripcion || "";
+      const descripcionInput = document.getElementById(`descripcion-${i}`);
+      if (descripcionInput) descripcionInput.value = descripcion;
+    }
+
+    totalPuntos += puntos;
   }
 
-  // Para planeaciones
-  if (e.target.classList.contains("nivel-select")) {
-    const selects = document.querySelectorAll(".nivel-select");
-    let total = 0;
+  const totalRedondeado = +totalPuntos.toFixed(1);
+  document.getElementById("puntuacionTotal").value = totalRedondeado;
 
-    selects.forEach((select, i) => {
-      const max = parseFloat(select.dataset.puntos);
-      const nivel = select.value;
-      const nombre = select.dataset.nombre;
-      const descripcion = DESCRIPCIONES[nombre]?.[nivel] || "";
-
-      if (document.getElementById(`descripcion-${i}`)) {
-        document.getElementById(`descripcion-${i}`).value = descripcion;
-      }
-
-      if (nivel === "Excelente") total += max;
-      else if (nivel === "Satisfactorio") total += max * 0.7;
-      else if (nivel === "Insuficiente") total += max * 0.4;
-    });
-
-    const totalRedondeado = +total.toFixed(1);
-    document.getElementById("puntuacionTotal").value = totalRedondeado;
-
-    let concepto = "❌ No Aprobado";
+  let concepto = "❌ No Aprobado";
+  if (tipo === "planeaciones") {
+    if (totalRedondeado >= 80) concepto = "✅ Aprobado";
+    else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
+  } else if (tipo === "protocolos") {
     if (totalRedondeado >= 90) concepto = "✅ Sobresaliente";
     else if (totalRedondeado >= 75) concepto = "✅ Notable";
     else if (totalRedondeado >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
-
-    document.getElementById("concepto").value = concepto;
   }
+
+  document.getElementById("concepto").value = concepto;
 });
 
 // ---------------------------
@@ -258,8 +261,8 @@ document.addEventListener("submit", async function (e) {
     const nivel = document.getElementById(`nivel-${i}`).value;
     const observaciones = document.getElementById(`observaciones-${i}`).value;
     const descripcion = document.getElementById(`descripcion-${i}`)?.value || "";
-
     let puntos = 0;
+
     if (tipo === "planeaciones") {
       const max = parseFloat(document.getElementById(`nivel-${i}`).dataset.puntos);
       puntos = nivel === "Excelente" ? max : nivel === "Satisfactorio" ? max * 0.7 : max * 0.4;
@@ -280,7 +283,6 @@ document.addEventListener("submit", async function (e) {
 
   const puntuacionTotal = +totalPuntos.toFixed(1);
   let concepto = "❌ No Aprobado";
-
   if (tipo === "planeaciones") {
     if (puntuacionTotal >= 80) concepto = "✅ Aprobado";
     else if (puntuacionTotal >= 60) concepto = "⚠️ Aprobado con Recomendaciones";
@@ -308,8 +310,6 @@ document.addEventListener("submit", async function (e) {
   }
 });
 
-
-
 // ---------------------------
 // Mostrar mensaje
 // ---------------------------
@@ -322,4 +322,3 @@ function mostrarMensaje(texto, tipo) {
     div.className = "message";
   }, 3000);
 }
-
