@@ -69,7 +69,8 @@
       text-align: center;
     }
 
-    #tablaPromediosPlaneacion {
+    #tablaPromediosPlaneacion,
+    #tablaPromediosProtocolos {
       margin-bottom: 40px;
     }
   </style>
@@ -78,9 +79,19 @@
   <div class="chart-container">
     <h1>📊 Estadísticas de Evaluación</h1>
 
-    <!-- Nueva tabla de promedios de planeaciones -->
     <h2>Promedio de Planeaciones por Grupo</h2>
     <table id="tablaPromediosPlaneacion">
+      <thead>
+        <tr>
+          <th>Grupo</th>
+          <th>Promedio</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Promedio de Protocolos por Grupo</h2>
+    <table id="tablaPromediosProtocolos">
       <thead>
         <tr>
           <th>Grupo</th>
@@ -175,7 +186,8 @@
 
       actualizarGraficas(nombres, promedios, niveles);
       generarAnalisis(nombres, promedios, grupoSeleccionado);
-      await cargarPromediosPlaneacion(); // 👈 se actualiza también la tabla de promedios
+      await cargarPromediosPlaneacion();
+      await cargarPromediosProtocolos();
     }
 
     function actualizarGraficas(nombres, promedios, niveles) {
@@ -238,20 +250,14 @@
       document.getElementById("resumenAnalisis").innerHTML = texto;
     }
 
-    // ✅ NUEVA FUNCIÓN: calcular promedios de planeaciones
     async function cargarPromediosPlaneacion() {
-      const grupos = [
-        "Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5",
-        "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"
-      ];
-
+      const grupos = ["Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5", "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"];
       const tablaBody = document.querySelector("#tablaPromediosPlaneacion tbody");
       tablaBody.innerHTML = "";
 
       for (const grupo of grupos) {
         const ref = collection(db, "rubricas", grupo, "planeaciones");
         const snap = await getDocs(ref);
-
         let total = 0;
         let count = 0;
 
@@ -259,20 +265,46 @@
           const data = doc.data();
           if (data.puntuacionTotal !== undefined) {
             total += data.puntuacionTotal;
-            count += 1;
+            count++;
           }
         });
 
         const promedio = count > 0 ? (total / count).toFixed(1) : "—";
-
         const fila = document.createElement("tr");
         fila.innerHTML = `<td>${grupo}</td><td>${promedio}</td>`;
         tablaBody.appendChild(fila);
       }
     }
 
-    cargarDatos("Todos"); // iniciar por defecto
+    async function cargarPromediosProtocolos() {
+      const grupos = ["Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5", "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"];
+      const tablaBody = document.querySelector("#tablaPromediosProtocolos tbody");
+      tablaBody.innerHTML = "";
+
+      for (const grupo of grupos) {
+        const ref = collection(db, "rubricas", grupo, "protocolos");
+        const snap = await getDocs(ref);
+        let total = 0;
+        let count = 0;
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (data.puntuacionTotal !== undefined) {
+            total += data.puntuacionTotal;
+            count++;
+          }
+        });
+
+        const promedio = count > 0 ? (total / count).toFixed(1) : "—";
+        const fila = document.createElement("tr");
+        fila.innerHTML = `<td>${grupo}</td><td>${promedio}</td>`;
+        tablaBody.appendChild(fila);
+      }
+    }
+
+    cargarDatos("Todos");
   </script>
 </body>
 </html>
+
 
