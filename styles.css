@@ -31,6 +31,13 @@ select, input, textarea {
   border-radius: 8px;
   border: 1px solid #ccc;
   margin-top: 5px;
+  font-size: 15px;
+}
+
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 button {
@@ -41,11 +48,12 @@ button {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
 
 button:hover {
   background-color: #2563eb;
+  transform: translateY(-2px);
 }
 
 .message.success {
@@ -74,6 +82,11 @@ td, th {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
+}
+
+th {
+  text-transform: uppercase;
+  font-size: 14px;
 }
 
 /* ===== TARJETAS DE RÚBRICAS ===== */
@@ -112,6 +125,15 @@ td, th {
 .insuficiente {
   background-color: #fecaca;
 }
+.sobresaliente {
+  background-color: #bfdbfe;
+}
+.notable {
+  background-color: #fcd34d;
+}
+.aprobado {
+  background-color: #86efac;
+}
 
 /* ===== RESULTADO FINAL ===== */
 .resultado-final {
@@ -131,21 +153,38 @@ td, th {
   padding: 8px;
   margin-bottom: 8px;
   border-radius: 6px;
+  font-size: 14px;
+}
+
+/* ===== MENÚS DESPLEGABLES ===== */
+select {
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+}
+
+select:hover {
+  border-color: #3b82f6;
+}
+
+select option {
+  padding: 8px;
 }
 
 /* ===== RESPONSIVE ===== */
 @media screen and (max-width: 768px) {
-  .login-container {
+  .login-container, .rubrica-historial {
     padding: 20px;
   }
 }
 
+/* ===== CARD GENERAL ===== */
 .card {
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   padding: 30px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto;
   width: 100%;
   max-width: 1000px;
 }
@@ -168,13 +207,7 @@ td, th {
   color: white;
 }
 
-.rubrica-historial {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  padding-bottom: 40px;
-}
-
+/* ===== BOTONES PDF ===== */
 .pdf-button {
   background-color: #10b981;
   color: white;
@@ -189,6 +222,5 @@ td, th {
 .pdf-button:hover {
   background-color: #059669;
 }
-
 
 
