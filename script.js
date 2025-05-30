@@ -9,7 +9,6 @@ import {
   arrayUnion
 } from "./firebase-setup.js";
 
-
 const CONTRASEÑAS = {
   "Grupo1": ["20231245017", "20231245010"],
   "Grupo2": ["20231245022", "20231245013"],
@@ -25,7 +24,7 @@ const CONTRASEÑAS = {
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
+
   const grupo = document.getElementById('grupo').value;
   const password = document.getElementById('password').value;
 
@@ -41,17 +40,20 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   try {
     const planeacionesRef = collection(db, "rubricas", grupo, "planeaciones");
-    const q = query(planeacionesRef, orderBy("timestamp", "desc"));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      showMessage("Aún no hay rúbricas disponibles para este grupo", "error");
-      return;
-    }
+    const qPlaneaciones = query(planeacionesRef, orderBy("timestamp", "desc"));
+    const snapPlaneaciones = await getDocs(qPlaneaciones);
 
     const planeaciones = [];
-    snapshot.forEach(doc => planeaciones.push(doc.data()));
-    mostrarHistorial(grupo, planeaciones);
+    snapPlaneaciones.forEach(doc => planeaciones.push({ id: doc.id, ...doc.data() }));
+
+    const protocolosRef = collection(db, "rubricas", grupo, "protocolos");
+    const qProtocolos = query(protocolosRef, orderBy("timestamp", "desc"));
+    const snapProtocolos = await getDocs(qProtocolos);
+
+    const protocolos = [];
+    snapProtocolos.forEach(doc => protocolos.push({ id: doc.id, ...doc.data() }));
+
+    mostrarHistorial(grupo, planeaciones, protocolos);
   } catch (error) {
     console.error("Error al consultar las rúbricas:", error);
     showMessage("Error al obtener las rúbricas", "error");
@@ -68,7 +70,7 @@ function showMessage(text, type) {
   }, 3000);
 }
 
-function mostrarHistorial(grupo, planeaciones) {
+function mostrarHistorial(grupo, planeaciones, protocolos) {
   const integrantes = {
     "Grupo1": "Paula y Julieth",
     "Grupo2": "Estefania y Thalia",
@@ -82,21 +84,47 @@ function mostrarHistorial(grupo, planeaciones) {
     "Grupo10": "Nicole y Jean Paul"
   };
 
-  const rubricasHTML = planeaciones.map((datos, index) => {
-  const comentarios = datos.comentarios || [];
+  document.getElementById("contenido").innerHTML = `
+    <div class="rubrica-historial">
+      <h1>Historial de Rúbricas - ${grupo}</h1>
+      
+      <h2>📑 Planeaciones Calificadas</h2>
+      <select onchange="mostrarSeleccionado(this, 'planeacion')">
+        <option value="">-- Selecciona una planeación --</option>
+        ${planeaciones.map((p, i) => `<option value="planeacion-${i}">Planeación ${i + 1} (${new Date(p.fechaEvaluacion).toLocaleDateString('es-ES')})</option>`).join("")}
+      </select>
+      ${planeaciones.map((datos, index) => renderRubrica(grupo, integrantes[grupo], datos, index, 'planeacion')).join('')}
 
+      <h2 style="margin-top:40px;">📄 Protocolos Calificados</h2>
+      <select onchange="mostrarSeleccionado(this, 'protocolo')">
+        <option value="">-- Selecciona un protocolo --</option>
+        ${protocolos.map((p, i) => `<option value="protocolo-${i}">Protocolo ${i + 1} (${new Date(p.fechaEvaluacion).toLocaleDateString('es-ES')})</option>`).join("")}
+      </select>
+      ${protocolos.map((datos, index) => renderRubrica(grupo, integrantes[grupo], datos, index, 'protocolo')).join('')}
+
+      <button onclick="window.location.href='index.html'" style="margin-top: 30px;">
+        Volver al inicio
+      </button>
+    </div>
+  `;
+}
+
+function renderRubrica(grupo, integrantes, datos, index, tipo) {
+  const comentarios = datos.comentarios || [];
   const comentariosHTML = comentarios.map(c => `
     <div class="comentario">
       <strong>${c.autor}:</strong> ${c.mensaje}
     </div>
   `).join("");
 
+  const rubricaId = `${tipo}-${index}`;
+
   return `
-    <div class="card rubrica-card" id="rubrica-${grupo}-${index}">
-      <h2 class="rubrica-title">Planeación ${index + 1}</h2>
+    <div class="card rubrica-card" id="${rubricaId}" style="display:none;">
+      <h2 class="rubrica-title">${tipo === 'planeacion' ? 'Planeación' : 'Protocolo'} ${index + 1}</h2>
       <div class="rubrica-info">
         <p><strong>Grupo:</strong> ${grupo}</p>
-        <p><strong>Integrantes:</strong> ${integrantes[grupo]}</p>
+        <p><strong>Integrantes:</strong> ${integrantes}</p>
         <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
       </div>
       <table>
@@ -126,95 +154,30 @@ function mostrarHistorial(grupo, planeaciones) {
         <p><strong>Resultado:</strong> ${datos.concepto}</p>
       </div>
       <div style="margin-top:15px;">
-        <button onclick="descargarPDF('rubrica-${grupo}-${index}')" class="pdf-button">
+        <button onclick="descargarPDF('${rubricaId}')" class="pdf-button">
           📄 Descargar PDF
         </button>
       </div>
-
+      ${tipo === 'planeacion' ? `
       <div class="comentarios-container">
         <h4>💬 Comentarios</h4>
         ${comentariosHTML || "<p>No hay comentarios aún.</p>"}
         <textarea placeholder="Escribe tu comentario aquí..." id="comentario-${index}" rows="2" style="width:100%; margin-top:10px;"></textarea>
         <button onclick="guardarComentario('${grupo}', ${index})" style="margin-top:10px;">Enviar comentario</button>
-      </div>
+      </div>` : ''}
     </div>
   `;
-}).join('');
-
-
-  document.getElementById("contenido").innerHTML = `
-    <div class="rubrica-historial">
-      <h1>Historial de Rúbricas - ${grupo}</h1>
-      ${rubricasHTML}
-      <h2 style="margin-top:40px;">📄 Protocolos Calificados</h2>
-      <div id="protocolosContainer"><p>Cargando protocolos...</p></div>
-      <button onclick="window.location.href='index.html'" style="margin-top: 30px;">
-        Volver al inicio
-      </button>
-    </div>
-  `;
-
-  // Cargar protocolos al final
-  cargarProtocolos(grupo);
 }
 
+window.mostrarSeleccionado = function(select, tipo) {
+  const all = document.querySelectorAll(`.rubrica-card[id^='${tipo}']`);
+  all.forEach(div => div.style.display = "none");
 
-// calificar protocolos
-
-async function cargarProtocolos(grupo) {
-  const container = document.getElementById("protocolosContainer");
-
-  try {
-    const protocolosRef = collection(db, "rubricas", grupo, "protocolos");
-    const q = query(protocolosRef, orderBy("timestamp", "desc"));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      container.innerHTML = "<p>No hay protocolos calificados aún.</p>";
-      return;
-    }
-
-    const protocolosHTML = snapshot.docs.map((doc, index) => {
-      const datos = doc.data();
-      return `
-        <div class="card">
-          <h3>📄 Protocolo ${index + 1}</h3>
-          <p><strong>🗓️ Fecha de evaluación:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString('es-ES')}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Criterio</th>
-                <th>Puntos</th>
-                <th>Nivel</th>
-                <th>Observaciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${datos.criterios.map(c => `
-                <tr>
-                  <td>${c.nombre}</td>
-                  <td>${c.puntos}</td>
-                  <td>${c.nivel}</td>
-                  <td>${c.observaciones || '-'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          <div class="resultado-final">
-            <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
-            <p><strong>Resultado:</strong> ${datos.concepto}</p>
-          </div>
-        </div>
-      `;
-    }).join("<hr style='margin:40px 0;'>");
-
-    container.innerHTML = protocolosHTML;
-  } catch (error) {
-    console.error("Error al cargar protocolos:", error);
-    container.innerHTML = "<p>Error al cargar protocolos.</p>";
+  const selectedId = select.value;
+  if (selectedId) {
+    document.getElementById(selectedId).style.display = "block";
   }
-}
-
+};
 
 window.guardarComentario = async function(grupo, index) {
   const comentarioInput = document.getElementById(`comentario-${index}`);
@@ -222,13 +185,13 @@ window.guardarComentario = async function(grupo, index) {
   if (!mensaje) return alert("El comentario no puede estar vacío.");
 
   try {
-    const planeacionesRef = collection(db, "rubricas", grupo, "planeaciones");
-    const q = query(planeacionesRef, orderBy("timestamp", "desc"));
-    const snapshot = await getDocs(q);
-    const documentos = snapshot.docs;
+    const ref = collection(db, "rubricas", grupo, "planeaciones");
+    const q = query(ref, orderBy("timestamp", "desc"));
+    const snap = await getDocs(q);
+    const docs = snap.docs;
 
-    if (documentos[index]) {
-      const docRef = doc(db, "rubricas", grupo, "planeaciones", documentos[index].id);
+    if (docs[index]) {
+      const docRef = doc(db, "rubricas", grupo, "planeaciones", docs[index].id);
       await updateDoc(docRef, {
         comentarios: arrayUnion({ autor: "Estudiante", mensaje })
       });
@@ -243,8 +206,29 @@ window.guardarComentario = async function(grupo, index) {
   }
 };
 
+window.descargarPDF = function(idElemento) {
+  const element = document.getElementById(idElemento);
+  const clone = element.cloneNode(true);
+  clone.style.width = "1000px";
+  clone.style.padding = "20px";
+  clone.style.backgroundColor = "#fff";
+  clone.style.position = "absolute";
+  clone.style.left = "-9999px";
+  document.body.appendChild(clone);
 
-// Acceso para profesores
+  const opt = {
+    margin:       0.3,
+    filename:     `${idElemento}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  html2pdf().set(opt).from(clone).save().then(() => {
+    document.body.removeChild(clone);
+  });
+};
+
 window.mostrarLoginProfesor = function () {
   document.getElementById("loginProfesor").style.display = "block";
 };
@@ -262,32 +246,6 @@ window.verificarAccesoProfesor = function () {
   }
 };
 
-window.descargarPDF = function(idElemento) {
-  const element = document.getElementById(idElemento);
-
-  // Crear una copia del contenido
-  const clone = element.cloneNode(true);
-  clone.style.width = "1000px";
-  clone.style.padding = "20px";
-  clone.style.backgroundColor = "#fff";
-  clone.style.position = "absolute";
-  clone.style.left = "-9999px"; // fuera de pantalla
-  document.body.appendChild(clone);
-
-  // Opciones de exportación
-  const opt = {
-    margin:       0.3,
-    filename:     `${idElemento}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  };
-
-  // Exportar desde el clon oculto
-  html2pdf().set(opt).from(clone).save().then(() => {
-    document.body.removeChild(clone); // Limpiar después
-  });
-};
 
 
 
