@@ -12,7 +12,6 @@ import {
 
 const auth = getAuth();
 
-// Evento del formulario de inicio de sesión
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -21,37 +20,47 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const mensajeDiv = document.getElementById("mensaje");
 
   if (!email || !password) {
-    mostrarMensaje("Por favor completa todos los campos.", "error");
+    mostrarMensaje("Por favor ingresa tu correo y contraseña.", "error");
     return;
   }
 
   try {
-    // Inicia sesión con Firebase Auth
     const credencial = await signInWithEmailAndPassword(auth, email, password);
     const uid = credencial.user.uid;
 
-    // Consulta el grupo del usuario desde Firestore
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
+    // Obtener grupo del usuario desde Firestore
+    const userDoc = await getDoc(doc(db, "usuarios", uid));
 
-    if (docSnap.exists()) {
-      const datos = docSnap.data();
-      const grupo = datos.grupo;
-
-      // Redirige a la página de visualización de rúbricas (index.html antiguo)
-      window.location.href = `index.html?grupo=${grupo}&uid=${uid}`;
-    } else {
-      mostrarMensaje("Usuario no registrado correctamente en la base de datos.", "error");
+    if (!userDoc.exists()) {
+      mostrarMensaje("Usuario registrado pero sin grupo asignado.", "error");
+      return;
     }
+
+    const datos = userDoc.data();
+    const grupo = datos.grupo;
+
+    // Guardar en localStorage (opcional para usar después)
+    localStorage.setItem("grupo", grupo);
+    localStorage.setItem("email", email);
+
+    mostrarMensaje("✅ Acceso exitoso. Redirigiendo...", "success");
+
+    // Redirigir al panel de rúbricas después de 2 segundos
+    setTimeout(() => {
+      window.location.href = "panel-estudiante.html";
+    }, 2000);
+
   } catch (error) {
-    console.error("Error al iniciar sesión:", error);
-    let mensaje = "Error al iniciar sesión. Verifica tu correo y contraseña.";
+    console.error("Error de inicio de sesión:", error);
+    let mensajeError = "Error al iniciar sesión. Verifica los datos.";
     if (error.code === "auth/user-not-found") {
-      mensaje = "Usuario no encontrado.";
+      mensajeError = "Correo no registrado.";
     } else if (error.code === "auth/wrong-password") {
-      mensaje = "Contraseña incorrecta.";
+      mensajeError = "Contraseña incorrecta.";
+    } else if (error.code === "auth/invalid-email") {
+      mensajeError = "Correo inválido.";
     }
-    mostrarMensaje(`❌ ${mensaje}`, "error");
+    mostrarMensaje(`❌ ${mensajeError}`, "error");
   }
 });
 
