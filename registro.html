@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Estudiante</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h1>Registro de Estudiante</h1>
+    <form id="registroForm">
+      <div class="form-group">
+        <label for="grupo">Grupo:</label>
+        <select id="grupo" required>
+          <option value="">Selecciona tu grupo</option>
+          <option value="Grupo1">Grupo 1 - Paula y Julieth</option>
+          <option value="Grupo2">Grupo 2 - Estefania y Thalia</option>
+          <option value="Grupo3">Grupo 3 - María José y Santiago</option>
+          <option value="Grupo4">Grupo 4 - Jhon Jairo y William</option>
+          <option value="Grupo5">Grupo 5 - Jeidy y Stip</option>
+          <option value="Grupo6">Grupo 6 - Daniel y Nataly</option>
+          <option value="Grupo7">Grupo 7 - Laura y Iris</option>
+          <option value="Grupo8">Grupo 8 - Ana y Andrés</option>
+          <option value="Grupo9">Grupo 9 - Carlos</option>
+          <option value="Grupo10">Grupo 10 - Nicole y Jean Paul</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="email">Correo institucional:</label>
+        <input type="email" id="email" required placeholder="ejemplo@correo.edu.co" />
+      </div>
+      <div class="form-group">
+        <label for="password">Crea una contraseña:</label>
+        <input type="password" id="password" required minlength="6" />
+      </div>
+      <button type="submit">Registrarme</button>
+    </form>
+    <p style="margin-top: 20px;">¿Ya tienes cuenta? <a href="index.html">Inicia sesión aquí</a></p>
+
+    <div id="mensaje" class="message"></div>
+  </div>
+
+  <script type="module" src="registro.js"></script>
+</body>
+</html>
