@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Rúbrica de Evaluación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="login-container" id="contenido">
+    <h1>Bienvenido al Panel de Evaluación</h1>
+    <p id="bienvenida"></p>
+    <div id="rubricasContainer">
+      <p>Cargando tus rúbricas...</p>
+    </div>
+    <button onclick="cerrarSesion()" style="margin-top: 20px;">Cerrar sesión</button>
+  </div>
+
+  <!-- Firebase & Lógica -->
+  <script type="module" src="panel-estudiante.js"></script>
+</body>
+</html>
