@@ -15,6 +15,15 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
 // Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDqbbvsipR4zxsk4VPq3k_VbePqpsjD9Hc",
@@ -28,9 +37,11 @@ const firebaseConfig = {
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // Exportar todo lo necesario
 export {
+  // Firestore
   db,
   doc,
   getDoc,
@@ -42,7 +53,15 @@ export {
   getDocs,
   query,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+
+  // Authentication
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  signOut
 };
 
 
