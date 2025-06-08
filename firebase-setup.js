@@ -41,8 +41,9 @@ const auth = getAuth(app);
 
 // Exportar todo lo necesario
 export {
-  // Firestore
+  app,
   db,
+  auth,
   doc,
   getDoc,
   setDoc,
@@ -54,13 +55,10 @@ export {
   query,
   orderBy,
   serverTimestamp,
-
-  // Authentication
-  auth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signOut
 };
 
