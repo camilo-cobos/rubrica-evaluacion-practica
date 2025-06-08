@@ -314,8 +314,7 @@ document.addEventListener("submit", async function (e) {
 } catch (error) {
   console.error("🔥 Error al guardar la rúbrica:", error.code, error.message);
   mostrarMensaje("❌ Error al guardar la rúbrica", "error");
-}
-;
+};
 
 // ---------------------------
 // Mostrar mensaje
