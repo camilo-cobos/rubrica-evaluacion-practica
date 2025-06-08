@@ -116,14 +116,20 @@ td, th {
 }
 
 /* ===== COLORES PARA NIVELES ===== */
-.excelente {
+.excelente, .sobresaliente {
   background-color: #bbf7d0;
 }
-.satisfactorio {
+
+.satisfactorio, .notable {
   background-color: #fef9c3;
 }
+
 .insuficiente {
   background-color: #fecaca;
+}
+
+.aprobado {
+  background-color: #e0f2fe;
 }
 
 /* ===== RESULTADO FINAL ===== */
@@ -168,6 +174,7 @@ td, th {
 .pdf-button:hover {
   background-color: #059669;
 }
+
 
 
 
