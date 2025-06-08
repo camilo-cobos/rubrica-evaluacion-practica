@@ -1,28 +1,32 @@
+// recuperar.js
 import {
-  getAuth,
+  auth,
   sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-
-const auth = getAuth();
+} from "./firebase-setup.js";
 
 document.getElementById("recuperarForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
-  const mensaje = document.getElementById("mensaje");
+  const mensajeDiv = document.getElementById("mensaje");
 
   try {
     await sendPasswordResetEmail(auth, email);
-    mensaje.textContent = "✅ Revisa tu correo para restablecer tu contraseña.";
-    mensaje.className = "message success";
+    mostrarMensaje("✅ Se envió un enlace de recuperación a tu correo.", "success");
   } catch (error) {
-    console.error("Error al enviar el correo:", error);
-    let texto = "❌ Error al enviar correo.";
-    if (error.code === "auth/user-not-found") {
-      texto = "❌ Correo no registrado.";
-    }
-    mensaje.textContent = texto;
-    mensaje.className = "message error";
+    let mensaje = "No se pudo enviar el enlace.";
+    if (error.code === "auth/user-not-found") mensaje = "Correo no registrado.";
+    else if (error.code === "auth/invalid-email") mensaje = "Correo no válido.";
+    mostrarMensaje(`❌ ${mensaje}`, "error");
   }
-
-  setTimeout(() => mensaje.textContent = "", 5000);
 });
+
+function mostrarMensaje(texto, tipo) {
+  const div = document.getElementById("mensaje");
+  div.textContent = texto;
+  div.className = `message ${tipo}`;
+  setTimeout(() => {
+    div.textContent = "";
+    div.className = "message";
+  }, 3500);
+}
+
