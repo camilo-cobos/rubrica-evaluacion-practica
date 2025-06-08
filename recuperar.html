@@ -1,23 +1,26 @@
+<!-- recuperar.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Recuperar Contraseña</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Contraseña</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="login-container">
-    <h1>Recupera tu contraseña</h1>
+    <h1>Recuperar Contraseña</h1>
     <form id="recuperarForm">
       <div class="form-group">
         <label for="email">Correo institucional:</label>
-        <input type="email" id="email" required placeholder="nombre@udistrital.edu.co" />
+        <input type="email" id="email" required />
       </div>
-      <button type="submit">Enviar enlace de recuperación</button>
+
+      <button type="submit">Enviar enlace</button>
     </form>
-    <p style="margin-top:20px;"><a href="index.html">Volver al inicio</a></p>
+
     <div id="mensaje" class="message"></div>
+    <button onclick="window.location.href='login.html'" style="margin-top:20px;">Volver al inicio de sesión</button>
   </div>
 
   <script type="module" src="recuperar.js"></script>
