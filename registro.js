@@ -1,18 +1,12 @@
+// registro.js
 import {
-  getAuth,
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-
-import {
+  auth,
   db,
-  doc,
-  setDoc
+  createUserWithEmailAndPassword,
+  setDoc,
+  doc
 } from "./firebase-setup.js";
 
-// Inicializa Firebase Auth
-const auth = getAuth();
-
-// Manejador del formulario
 document.getElementById("registroForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -21,40 +15,28 @@ document.getElementById("registroForm").addEventListener("submit", async (e) => 
   const password = document.getElementById("password").value.trim();
   const mensajeDiv = document.getElementById("mensaje");
 
-  // Validaciones básicas
   if (!grupo || !email || !password) {
     mostrarMensaje("Por favor completa todos los campos.", "error");
     return;
   }
 
   try {
-    // Crea el usuario en Firebase Auth
-    const credencial = await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Guarda la información adicional en Firestore
-    await setDoc(doc(db, "usuarios", credencial.user.uid), {
+    await setDoc(doc(db, "usuarios", cred.user.uid), {
       email,
       grupo
     });
 
-    mostrarMensaje("✅ Registro exitoso. Ahora puedes iniciar sesión.", "success");
-
-    // Redirigir después de unos segundos
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 2500);
-
+    mostrarMensaje("✅ Registro exitoso. Ya puedes iniciar sesión.", "success");
+    setTimeout(() => window.location.href = "login.html", 2500);
   } catch (error) {
-    console.error("Error de registro:", error);
-    let mensajeError = "Error al registrar. Intenta nuevamente.";
-    if (error.code === "auth/email-already-in-use") {
-      mensajeError = "El correo ya está registrado.";
-    } else if (error.code === "auth/weak-password") {
-      mensajeError = "La contraseña debe tener al menos 6 caracteres.";
-    } else if (error.code === "auth/invalid-email") {
-      mensajeError = "Correo inválido.";
-    }
-    mostrarMensaje(`❌ ${mensajeError}`, "error");
+    let mensaje = "Error al registrar. Intenta nuevamente.";
+    if (error.code === "auth/email-already-in-use") mensaje = "Este correo ya está registrado.";
+    else if (error.code === "auth/invalid-email") mensaje = "Correo no válido.";
+    else if (error.code === "auth/weak-password") mensaje = "La contraseña debe tener al menos 6 caracteres.";
+
+    mostrarMensaje(`❌ ${mensaje}`, "error");
   }
 });
 
