@@ -1,21 +1,17 @@
 // panel-estudiante.js
 import {
-  getAuth,
+  auth,
   onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-
-import {
+  signOut,
   db,
+  doc,
+  getDoc,
   collection,
   getDocs,
-  query,
   orderBy,
-  doc,
-  getDoc
+  query
 } from "./firebase-setup.js";
 
-const auth = getAuth();
 const bienvenida = document.getElementById("bienvenida");
 const rubricasContainer = document.getElementById("rubricasContainer");
 
@@ -26,33 +22,32 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   const uid = user.uid;
-  const userDoc = await getDoc(doc(db, "usuarios", uid));
+  const userRef = doc(db, "usuarios", uid);
+  const userSnap = await getDoc(userRef);
 
-  if (!userDoc.exists()) {
-    bienvenida.textContent = "No se encontró la información del usuario.";
+  if (!userSnap.exists()) {
+    bienvenida.textContent = "No se encontró tu grupo asignado.";
     return;
   }
 
-  const datosUsuario = userDoc.data();
-  const grupo = datosUsuario.grupo;
-  bienvenida.textContent = `Bienvenido/a ${datosUsuario.email} - Grupo ${grupo}`;
+  const { grupo, email } = userSnap.data();
+  bienvenida.textContent = `Bienvenido/a ${email} - Grupo ${grupo}`;
 
-  // Cargar rúbricas del grupo
   try {
-    const planeacionesRef = collection(db, "rubricas", grupo, "planeaciones");
-    const q = query(planeacionesRef, orderBy("timestamp", "desc"));
+    const rubricasRef = collection(db, "rubricas", grupo, "planeaciones");
+    const q = query(rubricasRef, orderBy("timestamp", "desc"));
     const snap = await getDocs(q);
 
     if (snap.empty) {
-      rubricasContainer.innerHTML = "<p>No hay rúbricas calificadas aún.</p>";
+      rubricasContainer.innerHTML = "<p>No hay rúbricas aún.</p>";
       return;
     }
 
-    const rubricasHTML = snap.docs.map((docSnap, index) => {
+    const html = snap.docs.map((docSnap, i) => {
       const datos = docSnap.data();
       return `
         <div class="card">
-          <h3>📝 Planeación ${index + 1}</h3>
+          <h3>📝 Planeación ${i + 1}</h3>
           <p><strong>📅 Fecha:</strong> ${new Date(datos.fechaEvaluacion).toLocaleDateString("es-ES")}</p>
           <table>
             <thead>
@@ -70,28 +65,25 @@ onAuthStateChanged(auth, async (user) => {
                   <td>${c.nombre}</td>
                   <td>${c.puntos}</td>
                   <td>${c.nivel}</td>
-                  <td>${c.descripcion || '-'}</td>
-                  <td>${c.observaciones || '-'}</td>
-                </tr>
-              `).join("")}
+                  <td>${c.descripcion || "-"}</td>
+                  <td>${c.observaciones || "-"}</td>
+                </tr>`).join("")}
             </tbody>
           </table>
           <p><strong>Puntuación total:</strong> ${datos.puntuacionTotal.toFixed(1)} / 100</p>
           <p><strong>Resultado:</strong> ${datos.concepto}</p>
         </div>
       `;
-    }).join("<hr style='margin:40px 0;'>");
+    }).join("<hr style='margin:30px 0;'>");
 
-    rubricasContainer.innerHTML = rubricasHTML;
+    rubricasContainer.innerHTML = html;
   } catch (error) {
     console.error("Error al cargar rúbricas:", error);
     rubricasContainer.innerHTML = "<p>Error al cargar las rúbricas.</p>";
   }
 });
 
-// Cerrar sesión
 document.getElementById("cerrarSesion").addEventListener("click", () => {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
+  signOut(auth).then(() => window.location.href = "index.html");
 });
+
