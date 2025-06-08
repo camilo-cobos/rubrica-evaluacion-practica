@@ -9,34 +9,6 @@ import {
   arrayUnion
 } from "./firebase-setup.js";
 
-const CONTRASEÑAS = {
-  "Grupo1": ["20231245017", "20231245010"],
-  "Grupo2": ["20231245022", "20231245013"],
-  "Grupo3": ["20231245042", "20231245023"],
-  "Grupo4": ["20231245031", "20231245032"],
-  "Grupo5": ["20231245054", "2023124502"],
-  "Grupo6": ["20231245008", "20231245012"],
-  "Grupo7": ["20231245046", "20231245030"],
-  "Grupo8": ["20231245024", "20211245023"],
-  "Grupo9": ["9914506"],
-  "Grupo10": ["20222245040", "20222245010"]
-};
-
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const grupo = document.getElementById('grupo').value;
-  const password = document.getElementById('password').value;
-
-  if (!grupo || !password) {
-    showMessage('Por favor completa todos los campos', 'error');
-    return;
-  }
-
-  if (!CONTRASEÑAS[grupo].includes(password)) {
-    showMessage('Contraseña incorrecta para este grupo', 'error');
-    return;
-  }
 
   try {
     const planeacionesRef = collection(db, "rubricas", grupo, "planeaciones");
