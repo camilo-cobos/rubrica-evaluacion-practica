@@ -1,4 +1,4 @@
-/* ===== BASE GENERAL ===== */
+/* ===== ESTILOS GENERALES ===== */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f3f4f6;
@@ -9,56 +9,45 @@ body {
 
 h1, h2, h3, h4 {
   color: #1f2937;
-  text-align: center;
 }
 
-.login-container {
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: #fff;
-  padding: 30px 40px;
+.login-container, .rubrica-historial {
+  width: 100%;
+  max-width: 100%;
+  margin: auto;
+  background-color: white;
+  padding: 40px;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  margin-top: 60px;
+  box-sizing: border-box;
 }
 
-/* ===== FORMULARIOS ===== */
-form {
-  margin-top: 20px;
-}
-
-.form-group {
+form, .form-group {
   margin-bottom: 20px;
 }
 
-input, select, textarea {
+select, input, textarea {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 15px;
+  margin-top: 5px;
 }
 
 button {
-  width: 100%;
-  padding: 12px;
+  padding: 10px 20px;
   border: none;
   background-color: #3b82f6;
   color: white;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 16px;
   transition: background 0.3s;
 }
 
 button:hover {
   background-color: #2563eb;
-}
-
-.message {
-  margin-top: 15px;
-  text-align: center;
-  font-weight: bold;
 }
 
 .message.success {
@@ -69,13 +58,36 @@ button:hover {
   color: red;
 }
 
-/* ===== RÚBRICAS ===== */
+/* ===== ESTILO PARA TABLA DE RÚBRICA ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 15px;
+}
+
+thead {
+  background-color: #1d4ed8;
+  color: white;
+}
+
+td, th {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+/* ===== TARJETAS DE RÚBRICAS ===== */
 .card {
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   padding: 30px;
-  margin-bottom: 30px;
+  margin: 40px auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card table {
@@ -96,21 +108,66 @@ button:hover {
   color: white;
 }
 
-hr {
-  border: 0;
-  height: 1px;
-  background-color: #ccc;
-  margin: 40px 0;
+.rubrica-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #1e40af;
+  text-align: center;
 }
 
+/* ===== COLORES PARA NIVELES ===== */
+.excelente {
+  background-color: #bbf7d0;
+}
+.satisfactorio {
+  background-color: #fef9c3;
+}
+.insuficiente {
+  background-color: #fecaca;
+}
+
+/* ===== RESULTADO FINAL ===== */
+.resultado-final {
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ===== COMENTARIOS ===== */
+.comentarios-container {
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
+}
+
+.comentario {
+  background: #f1f5f9;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+/* ===== RESPONSIVE ===== */
 @media screen and (max-width: 768px) {
-  .login-container {
+  .login-container, .rubrica-historial {
     padding: 20px;
   }
-
-  button {
-    font-size: 14px;
-  }
 }
+
+.pdf-button {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.pdf-button:hover {
+  background-color: #059669;
+}
+
 
 
