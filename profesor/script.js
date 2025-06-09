@@ -322,3 +322,4 @@ function mostrarMensaje(texto, tipo) {
     div.className = "message";
   }, 3000);
 }
+
