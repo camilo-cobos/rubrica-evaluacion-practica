@@ -302,19 +302,13 @@ document.addEventListener("submit", async function (e) {
   };
 
   try {
-  await addDoc(collection(db, "rubricas", grupo, tipo), {
-    grupo,
-    fechaEvaluacion: fecha,
-    puntuacionTotal,
-    concepto,
-    criterios: criteriosEvaluados,
-    timestamp: serverTimestamp()
-  });
-  mostrarMensaje("✅ Rúbrica guardada correctamente", "success");
-} catch (error) {
-  console.error("🔥 Error al guardar la rúbrica:", error.code, error.message);
-  mostrarMensaje("❌ Error al guardar la rúbrica", "error");
-}
+    await addDoc(collection(db, "rubricas", grupo, tipo), datos);
+    mostrarMensaje("✅ Rúbrica guardada correctamente", "success");
+  } catch (error) {
+    console.error(error);
+    mostrarMensaje("❌ Error al guardar la rúbrica", "error");
+  }
+});
 
 // ---------------------------
 // Mostrar mensaje
