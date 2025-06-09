@@ -48,7 +48,7 @@
 
     <div id="message" class="message"></div>
 
-    <!-- Acceso para profesores -->
+    <!-- Acceso para profesores (contraseña fija) -->
     <div class="admin-link">
       <button onclick="mostrarLoginProfesor()">Acceso para profesores</button>
       <div id="loginProfesor" style="display:none; margin-top:15px;">
@@ -57,11 +57,66 @@
         <p id="mensajeProfesor" style="color:red;"></p>
       </div>
     </div>
-  </div>
 
+    <!-- Acceso para profesor autenticado con Firebase -->
+    <div id="loginProfesorAutenticado" style="display: none; margin-top: 30px;">
+      <h3>Ingreso de Profesor Autenticado</h3>
+      <input type="email" id="emailProfesor" placeholder="Correo del profesor">
+      <input type="password" id="claveProfesor" placeholder="Contraseña">
+      <button onclick="loginProfesorFirebase()">Iniciar sesión</button>
+      <p id="mensajeLoginAutenticado" style="color:red;"></p>
+    </div>
+
+    <button onclick="document.getElementById('loginProfesorAutenticado').style.display='block'">
+      Ingreso profesor con correo
+    </button>
+  </div>
 
   <script type="module" src="script.js"></script>
   <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+  <!-- Login para profesor autenticado en Firebase -->
+  <script type="module">
+    import {
+      getAuth,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+    import { auth } from "./firebase-setup.js";
+
+    window.loginProfesorFirebase = async function () {
+      const email = document.getElementById("emailProfesor").value.trim();
+      const password = document.getElementById("claveProfesor").value.trim();
+      const mensaje = document.getElementById("mensajeLoginAutenticado");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        mensaje.textContent = "Inicio de sesión exitoso.";
+        window.location.href = "profesor/index.html";
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        mensaje.textContent = "Correo o contraseña incorrectos.";
+      }
+    };
+
+    window.mostrarLoginProfesor = function () {
+      document.getElementById("loginProfesor").style.display = "block";
+    };
+
+    window.verificarAccesoProfesor = function () {
+      const CONTRASEÑA_PROFESOR = "Av@nZ4nD0H@C&1!a3lFuTuR0";
+      const inputPassword = document.getElementById("profesorPassword").value;
+      const mensaje = document.getElementById("mensajeProfesor");
+
+      if (inputPassword === CONTRASEÑA_PROFESOR) {
+        window.location.href = "profesor/index.html";
+      } else {
+        mensaje.textContent = "Contraseña incorrecta. Intente nuevamente.";
+        setTimeout(() => mensaje.textContent = "", 3000);
+      }
+    };
+  </script>
 </body>
 </html>
+
 
