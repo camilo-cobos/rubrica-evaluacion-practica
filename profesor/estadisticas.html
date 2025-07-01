@@ -258,23 +258,33 @@
       for (const grupo of grupos) {
         const ref = collection(db, "rubricas", grupo, "planeaciones");
         const snap = await getDocs(ref);
-        let total = 0;
-        let count = 0;
+        const planeaciones = [];
 
-        snap.forEach(doc => {
-          const data = doc.data();
-          if (data.puntuacionTotal !== undefined) {
-            total += data.puntuacionTotal;
-            count++;
-          }
-        });
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (data.puntuacionTotal !== undefined && data.fechaEvaluacion) {
+          planeaciones.push({
+            puntuacion: data.puntuacionTotal,
+            fecha: new Date(data.fechaEvaluacion)
+          });
+        }
+      });
 
-        const promedio = count > 0 ? (total / count).toFixed(1) : "—";
-        const fila = document.createElement("tr");
-        fila.innerHTML = `<td>${grupo}</td><td>${promedio}</td>`;
-        tablaBody.appendChild(fila);
+      // Ordenar de más reciente a más antigua
+      planeaciones.sort((a, b) => b.fecha - a.fecha);
+  
+      // Tomar solo las 5 más recientes
+      const ultimas5 = planeaciones.slice(0, 5);
+  
+      const total = ultimas5.reduce((acc, p) => acc + p.puntuacion, 0);
+      const promedio = ultimas5.length > 0 ? (total / ultimas5.length).toFixed(1) : "—";
+  
+      const fila = document.createElement("tr");
+      fila.innerHTML = `<td>${grupo}</td><td>${promedio}</td>`;
+      tablaBody.appendChild(fila);
       }
     }
+
 
     async function cargarPromediosProtocolos() {
       const grupos = ["Grupo1", "Grupo2", "Grupo3", "Grupo4", "Grupo5", "Grupo6", "Grupo7", "Grupo8", "Grupo9", "Grupo10"];
