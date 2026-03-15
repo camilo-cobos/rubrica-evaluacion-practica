@@ -23,12 +23,12 @@ const CRITERIOS_PLANEACION = [
 // ---------------------------
 const DESCRIPCIONES = {
   "Objetivos": {
-    "Excelente": "Claros, medibles y alineados con resolución de problemas.",
+    "Excelente": "Claros, medibles y alineados con resolución de problemas y el proyecto de aula.",
     "Satisfactorio": "Parcialmente coherentes pero sin claridad.",
     "Insuficiente": "No hay correspondencia con el contenido, son vagos o irrelevantes."
   },
   "Justificación": {
-    "Excelente": "Fundamenta con claridad la importancia y el contexto escolar.",
+    "Excelente": "Fundamenta con claridad la importancia y el contexto escolar y el uso de los referentes legales.",
     "Satisfactorio": "Argumenta sin profundidad o sin contexto.",
     "Insuficiente": "No argumenta la pertinencia ni el propósito de la clase."
   },
